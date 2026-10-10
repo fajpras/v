@@ -28,6 +28,8 @@ import com.ven.app.ui.components.ui.VexPasswordField
 import com.ven.app.ui.components.ui.VexTextField
 import com.ven.app.ui.components.ui.VexTextFieldVariant
 import com.ven.app.ui.theme.ThemeMode
+import com.ven.app.ui.theme.VexRadius
+import com.ven.app.ui.theme.VexSize
 import com.ven.app.ui.theme.VexSpace
 import com.ven.app.ui.theme.VexTheme
 
@@ -57,7 +59,6 @@ fun LoginScreen(
                 onValueChange = onIdentifierChange,
                 placeholder = stringResource(R.string.auth_placeholder_email_username),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
@@ -71,7 +72,6 @@ fun LoginScreen(
                 onValueChange = onPasswordChange,
                 placeholder = stringResource(R.string.auth_placeholder_password),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,

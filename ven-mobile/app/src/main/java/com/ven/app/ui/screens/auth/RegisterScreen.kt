@@ -28,6 +28,8 @@ import com.ven.app.ui.components.ui.VexPasswordField
 import com.ven.app.ui.components.ui.VexTextField
 import com.ven.app.ui.components.ui.VexTextFieldVariant
 import com.ven.app.ui.theme.ThemeMode
+import com.ven.app.ui.theme.VexRadius
+import com.ven.app.ui.theme.VexSize
 import com.ven.app.ui.theme.VexSpace
 import com.ven.app.ui.theme.VexTheme
 
@@ -59,7 +61,6 @@ fun RegisterScreen(
                 onValueChange = onEmailChange,
                 placeholder = stringResource(R.string.auth_placeholder_email),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 isError = state.email.isNotEmpty() && !state.isEmailValid,
                 errorMessage = stringResource(R.string.register_error_email),
                 keyboardOptions = KeyboardOptions(
@@ -76,7 +77,6 @@ fun RegisterScreen(
                 onValueChange = onUsernameChange,
                 placeholder = stringResource(R.string.auth_placeholder_username),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 isError = state.username.isNotEmpty() && !state.isUsernameValid,
                 errorMessage = stringResource(R.string.register_error_username),
                 keyboardOptions = KeyboardOptions(
@@ -93,7 +93,6 @@ fun RegisterScreen(
                 onValueChange = onPasswordChange,
                 placeholder = stringResource(R.string.auth_placeholder_password),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Next,
@@ -118,7 +117,6 @@ fun RegisterScreen(
                 onValueChange = onConfirmPasswordChange,
                 placeholder = stringResource(R.string.auth_placeholder_confirm_password),
                 variant = VexTextFieldVariant.Pill,
-                authDarkMode = true,
                 isError = state.confirmPassword.isNotEmpty() && !state.isPasswordMatch,
                 errorMessage = stringResource(R.string.register_error_confirm),
                 keyboardOptions = KeyboardOptions(
