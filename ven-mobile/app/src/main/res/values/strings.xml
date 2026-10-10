@@ -53,4 +53,17 @@
     <string name="home_empty_feed">No posts available</string>
     <string name="post_see_more">see more</string>
     <string name="post_see_less">see less</string>
+
+    <!-- Request Meeting Strings -->
+    <string name="request_meeting_title">Request meeting</string>
+    <string name="request_meeting_chose_date">Chose Date</string>
+    <string name="request_meeting_chose_time">Chose Time</string>
+    <string name="request_meeting_message_hint">Message...</string>
+    <string name="request_meeting_send_request">Send Request</string>
+    <string name="request_meeting_am">AM</string>
+    <string name="request_meeting_pm">PM</string>
+    <string name="request_meeting_success">Meeting request sent successfully</string>
+    <string name="request_meeting_banner_content_desc">Exhibition banner</string>
+    <string name="request_meeting_prev_month">Previous month</string>
+    <string name="request_meeting_next_month">Next month</string>
 </resources>

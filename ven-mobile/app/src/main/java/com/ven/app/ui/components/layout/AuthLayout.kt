@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,34 +44,42 @@ fun AuthLayout(
             .background(colors.bg)
             .statusBarsPadding()
             .navigationBarsPadding()
-            .imePadding(),
+            .imePadding()
+            .padding(horizontal = 24.dp),
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
                 .widthIn(max = contentMaxWidth)
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 55.dp),
+                .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(VexSpace.s16))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(VexSpace.s16))
 
-            Text(
-                text = title,
-                style = MaterialTheme.typography.displayMedium,
-                color = colors.text,
-                textAlign = TextAlign.Center,
-            )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.displayMedium,
+                    color = colors.text,
+                    textAlign = TextAlign.Center,
+                )
 
-            Spacer(modifier = Modifier.height(VexSpace.s12))
+                Spacer(modifier = Modifier.height(VexSpace.s12))
 
-            formContent()
+                formContent()
 
-            Spacer(modifier = Modifier.weight(1f, fill = false))
-            Spacer(modifier = Modifier.height(VexSpace.s8))
+                Spacer(modifier = Modifier.height(VexSpace.s8))
+            }
 
             footerContent()
+
+            Spacer(modifier = Modifier.height(VexSpace.s10))
         }
     }
 }

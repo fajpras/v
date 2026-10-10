@@ -2,6 +2,7 @@ package com.ven.app.ui.components.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.ven.app.R
 import com.ven.app.ui.icons.VexIcon
 import com.ven.app.ui.theme.ThemeMode
 import com.ven.app.ui.theme.VexRadius
@@ -103,6 +106,13 @@ fun VexButton(
             .height(VexSize.control)
             .clip(RoundedCornerShape(VexRadius.full))
             .background(bgColor)
+            .then(
+                if (variant == VexButtonVariant.Outline) {
+                    Modifier.border(1.dp, Color.Black, RoundedCornerShape(VexRadius.full))
+                } else {
+                    Modifier
+                }
+            )
             .clickable(
                 enabled = isInteractive,
                 role = Role.Button,
@@ -127,7 +137,7 @@ fun VexButton(
                     VexIcon(
                         id = icon,
                         contentDescription = null,
-                        tint = textColor,
+                        tint = if (icon == R.drawable.ic_google) Color.Unspecified else textColor,
                         size = VexSize.iconSm,
                     )
                     Spacer(modifier = Modifier.width(VexSpace.s2))

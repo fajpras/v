@@ -30,6 +30,9 @@ import com.ven.app.ui.screens.home.HomeScreen
 import com.ven.app.ui.screens.home.HomeUiState
 import com.ven.app.ui.screens.home.SampleHomeUiState
 import com.ven.app.ui.screens.onboarding.InterestScreen
+import com.ven.app.ui.screens.requestmeeting.RequestMeetingEvent
+import com.ven.app.ui.screens.requestmeeting.RequestMeetingScreen
+import com.ven.app.ui.screens.requestmeeting.RequestMeetingViewModel
 import com.ven.app.ui.theme.VexTheme
 
 /**
@@ -175,7 +178,42 @@ fun AppNavHost() {
         // 5. Destinasi Utama (Home)
         // -------------------------------------------------------------
         composable(Screen.Home.route) {
-            MainHomeScreen()
+            MainHomeScreen(
+                onRequestMeetingClick = { postId ->
+                    navController.navigate(Screen.RequestMeeting.createRoute(postId))
+                },
+            )
+        }
+
+        // -------------------------------------------------------------
+        // 6. SubPage: Request Meeting
+        // -------------------------------------------------------------
+        composable(Screen.RequestMeeting.route) {
+            val requestViewModel: RequestMeetingViewModel = viewModel()
+            val requestState by requestViewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(Unit) {
+                requestViewModel.events.collect { event ->
+                    when (event) {
+                        RequestMeetingEvent.RequestSuccess -> {
+                            navController.popBackStack()
+                        }
+                    }
+                }
+            }
+
+            RequestMeetingScreen(
+                state = requestState,
+                onBackClick = { navController.popBackStack() },
+                onDaySelected = requestViewModel::onDaySelected,
+                onPrevMonth = requestViewModel::onPrevMonth,
+                onNextMonth = requestViewModel::onNextMonth,
+                onHourChange = requestViewModel::onHourChange,
+                onMinuteChange = requestViewModel::onMinuteChange,
+                onPeriodChange = requestViewModel::onPeriodChange,
+                onMessageChange = requestViewModel::onMessageChange,
+                onSendRequestClick = requestViewModel::sendRequest,
+            )
         }
     }
 }
@@ -183,6 +221,7 @@ fun AppNavHost() {
 @Composable
 fun MainHomeScreen(
     uiState: HomeUiState = SampleHomeUiState,
+    onRequestMeetingClick: (postId: String) -> Unit = {},
 ) {
     var currentTab by remember { mutableStateOf(BottomNavTab.Home) }
 
@@ -192,7 +231,7 @@ fun MainHomeScreen(
                 uiState = uiState,
                 onTabSelected = { currentTab = it },
                 onCreateClick = { /* TODO: handle create click */ },
-                onRequestMeetingClick = { /* TODO: handle request meeting */ },
+                onRequestMeetingClick = onRequestMeetingClick,
                 onView3dClick = { /* TODO: handle view 3D */ },
                 onBannerClick = { /* TODO: handle banner click */ },
             )

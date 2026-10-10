@@ -2,6 +2,7 @@ package com.ven.app.ui.components.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -30,6 +32,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ven.app.ui.icons.VexIcon
+import com.ven.app.ui.icons.VexIcons
 import com.ven.app.ui.theme.ThemeMode
 import com.ven.app.ui.theme.VexRadius
 import com.ven.app.ui.theme.VexSize
@@ -57,19 +61,15 @@ fun VexTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailingIcon: @Composable (() -> Unit)? = null,
-    authDarkMode: Boolean = false,
 ) {
     val colors = VexTheme.colors
     var isFocused by remember { mutableStateOf(false) }
 
-    val (bgColor, textColor, placeholderColor) = when {
-        authDarkMode && variant == VexTextFieldVariant.Pill -> {
-            Triple(Color.White, Color.Black, Color(0xFF8A8A92))
+    val (bgColor, textColor, placeholderColor) = when (variant) {
+        VexTextFieldVariant.Pill -> {
+            Triple(colors.fieldPill, Color.Black, colors.fieldPillPlaceholder)
         }
-        variant == VexTextFieldVariant.Pill -> {
-            Triple(colors.surfaceInput, colors.text, colors.textMuted)
-        }
-        else -> {
+        VexTextFieldVariant.Boxed -> {
             Triple(colors.surfaceInput, colors.text, colors.textMuted)
         }
     }
@@ -104,7 +104,7 @@ fun VexTextField(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
-            cursorBrush = SolidColor(if (authDarkMode) Color.Black else colors.primary),
+            cursorBrush = SolidColor(if (variant == VexTextFieldVariant.Pill) Color.Black else colors.primary),
             textStyle = MaterialTheme.typography.bodyLarge.copy(color = textColor),
             modifier = Modifier
                 .fillMaxWidth()
@@ -162,7 +162,6 @@ fun VexPasswordField(
     errorMessage: String = "",
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    authDarkMode: Boolean = false,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -179,12 +178,14 @@ fun VexPasswordField(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        authDarkMode = authDarkMode,
         trailingIcon = {
-            VexButton(
-                text = if (passwordVisible) "Hide" else "Show",
-                onClick = { passwordVisible = !passwordVisible },
-                variant = VexButtonVariant.TextLink,
+            VexIcon(
+                id = if (passwordVisible) VexIcons.EyesOn else VexIcons.EyesOff,
+                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                tint = VexTheme.colors.textMuted,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { passwordVisible = !passwordVisible },
             )
         },
     )
@@ -199,7 +200,6 @@ private fun VexTextFieldPillDarkPreview() {
             onValueChange = {},
             variant = VexTextFieldVariant.Pill,
             placeholder = "Email/Username",
-            authDarkMode = true,
         )
     }
 }

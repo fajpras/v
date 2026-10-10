@@ -53,4 +53,17 @@
     <string name="home_empty_feed">Belum ada postingan</string>
     <string name="post_see_more">selengkapnya</string>
     <string name="post_see_less">lihat lebih sedikit</string>
+
+    <!-- Request Meeting Strings -->
+    <string name="request_meeting_title">Ajukan Pertemuan</string>
+    <string name="request_meeting_chose_date">Pilih Tanggal</string>
+    <string name="request_meeting_chose_time">Pilih Waktu</string>
+    <string name="request_meeting_message_hint">Pesan...</string>
+    <string name="request_meeting_send_request">Kirim Permintaan</string>
+    <string name="request_meeting_am">AM</string>
+    <string name="request_meeting_pm">PM</string>
+    <string name="request_meeting_success">Permintaan pertemuan berhasil diajukan</string>
+    <string name="request_meeting_banner_content_desc">Banner pameran</string>
+    <string name="request_meeting_prev_month">Bulan sebelumnya</string>
+    <string name="request_meeting_next_month">Bulan berikutnya</string>
 </resources>

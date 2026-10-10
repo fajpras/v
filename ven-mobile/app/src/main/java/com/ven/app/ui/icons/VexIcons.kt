@@ -37,15 +37,18 @@ object VexIcons {
     @DrawableRes val Menu = R.drawable.ic_action_menu
     @DrawableRes val Back = R.drawable.ic_action_back
     @DrawableRes val Close = 0            // TODO: R.drawable.ic_action_close
-    @DrawableRes val ChevronRight = 0     // TODO: R.drawable.ic_action_chevron_right
+    @DrawableRes val ChevronLeft = R.drawable.ic_action_chevron_left
+    @DrawableRes val ChevronRight = R.drawable.ic_action_chevron_right
     @DrawableRes val ChevronDown = 0      // TODO: R.drawable.ic_action_chevron_down
     @DrawableRes val Search = R.drawable.ic_nav_explore_outline
     @DrawableRes val Filter = 0           // TODO: R.drawable.ic_action_filter
     @DrawableRes val ScheduleAction = R.drawable.ic_nav_schedule_outline
     @DrawableRes val Play = R.drawable.ic_action_play
     @DrawableRes val NewChat = R.drawable.ic_action_new_chat
-    @DrawableRes val Visibility = 0       // TODO: R.drawable.ic_action_visibility
-    @DrawableRes val VisibilityOff = 0    // TODO: R.drawable.ic_action_visibility_off
+    @DrawableRes val Visibility = R.drawable.eyes_on
+    @DrawableRes val VisibilityOff = R.drawable.eyes_off
+    @DrawableRes val EyesOn = R.drawable.eyes_on
+    @DrawableRes val EyesOff = R.drawable.eyes_off
 
     // Settings icons
     @DrawableRes val SettingsProfile = R.drawable.ic_settings_profile
@@ -72,6 +75,7 @@ object VexIcons {
     @DrawableRes val LogoVen = R.drawable.logo_ven
     @DrawableRes val LogoVex = R.drawable.logo_ven // Alias for DESIGN.md compatibility
     @DrawableRes val LogoGoogle = R.drawable.ic_google // Multi-color, NO tint
+    @DrawableRes val GoogleColour = R.drawable.ic_google
 }
 
 @Composable
