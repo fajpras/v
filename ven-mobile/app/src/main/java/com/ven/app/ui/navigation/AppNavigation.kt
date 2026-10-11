@@ -41,6 +41,7 @@ import com.ven.app.ui.theme.VexTheme
  */
 @Composable
 fun AppNavHost() {
+    val startDestination = Screen.Login.route
     val navController = rememberNavController()
     val forgotViewModel: ForgotPasswordViewModel = viewModel()
     val forgotState by forgotViewModel.uiState.collectAsStateWithLifecycle()
@@ -70,7 +71,7 @@ fun AppNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = startDestination,
     ) {
         // -------------------------------------------------------------
         // 1. Alur Login
