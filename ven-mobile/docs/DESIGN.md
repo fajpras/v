@@ -1,6 +1,6 @@
 # design.md: VEN / VEX (Virtual Exhibition), Android (Kotlin + Jetpack Compose)
 
-> **Versi:** 0.4 (sinkronisasi arsitektur repo VEN: Laravel Backend API + Android Kotlin & Jetpack Compose)
+> **Versi:** 0.4.4 (Update Request Meeting: Sticky Bottom Action Bar, Segmented Time Picker, Message Field)
 > **Pembaca utama:** AI/developer yang mengimplementasikan UI.
 > **Penanda:**
 > - `[OBSERVED]` = diambil langsung dari wireframe/Figma.
@@ -177,6 +177,7 @@ ven-mobile/app/src/main/
 │   │   │   │   ├── AuthLayout.kt
 │   │   │   │   └── PageContainer.kt
 │   │   │   └── feature/                   # Komponen lintas-layar (lihat §6.3)
+│   │   │       ├── CarouselExhibitions.kt
 │   │   │       ├── PostCard.kt
 │   │   │       ├── EventBanner.kt
 │   │   │       ├── EventListItem.kt
@@ -448,6 +449,11 @@ object VexTheme {
 - Layar utama: `Scaffold(bottomBar = { BottomNav(...) })`. **Konten di-scroll (`LazyColumn`/`LazyVerticalGrid`), bottom nav tetap diam.** Pakai `innerPadding` dari Scaffold sebagai `contentPadding` agar item terakhir tidak tertutup.
 - Edge-to-edge: hormati `WindowInsets.statusBars` (TopBar) dan `navigationBars` (BottomNav: tinggi `VexSize.bottomNav` + inset).
 - Form dengan tombol CTA di bawah ("Send OTP", "Publish", "Save"): CTA di slot bawah, `Modifier.navigationBarsPadding().imePadding()` supaya naik di atas keyboard. Margin horizontal 20dp `[OBSERVED]`.
+- **Sticky Bottom CTA Bar (layar SubPage / CreateFlow tanpa bottom nav):** CTA **bukan** bagian dari konten scroll. Dipasang lewat `Scaffold(bottomBar = { VexBottomActionBar(...) })` sehingga tetap diam saat konten di-scroll (perilaku persis seperti `BottomNav`).
+  - Konten memakai `innerPadding` dari Scaffold sebagai `contentPadding` agar elemen terbawah form tidak tertutup bar.
+  - Bar: lebar penuh, latar `navBar` (`#252525`) + garis atas 1dp `border` (`#313131`); padding horizontal 20dp, atas 12dp, bawah 24dp + `navigationBarsPadding()`; `imePadding()` supaya naik secara mulus di atas keyboard.
+  - Berbeda dari `BottomNav`: tidak ada tab/ikon navigasi, melainkan satu slot aksi (biasanya tombol Primary tunggal). Hanya muncul pada layar tanpa `BottomNav`.
+  - Dipakai di: §8.6.1 Request Meeting (dan menjadi acuan standardisasi untuk §8.9, §8.10, §8.11, §8.13, §8.14).
 - Top bar: tinggi 56dp + status bar inset, garis bawah 1dp `border` (terlihat di Profile, Settings, Create). Di Home/Explore boleh ikut scroll `[TODO]`.
 - Bottom nav: latar `navBar` (dark `#252525` `[OBSERVED]`), tinggi 64dp + inset navigation bar. Di dark **tanpa** garis atas; di light tambah garis atas 1dp `border` `[ASSUMPTION]`.
 
@@ -466,7 +472,7 @@ object VexTheme {
 
 | Composable | Varian / State | Catatan |
 |---|---|---|
-| **VexButton** | `Primary`, `Inverse` (hitam di light, putih di dark), `Outline` (Google), `Danger`, `TextLink`. State: enabled, pressed, loading, disabled | Tinggi 48dp, `RoundedCornerShape(full)`, teks `labelLarge` rata tengah. Disabled Primary = `primaryDisabled` + teks pucat (lihat "Join Room" status Waiting). Lebar penuh di auth, form, sheet |
+| **VexButton** | `Primary`, `Inverse` (hitam di light, putih di dark), `Outline` (Google), `Danger`, `TextLink`. State: enabled, pressed, loading, disabled | Tinggi 48dp, `RoundedCornerShape(full)`, teks `labelLarge` rata tengah. Outline: latar putih (`#FFFFFF`) dengan border hitam 1dp (`#000000`) & teks hitam di kedua mode. Disabled Primary = `primaryDisabled` + teks pucat (lihat "Join Room" status Waiting). Lebar penuh di auth, form, sheet |
 | **VexIconButton** | default, pressed | Area sentuh min 48dp walau ikon 24dp |
 | **VexTextField** | `Pill` (auth: tanpa border, fill solid `#FFFFFF` pada Dark Auth screen `[OBSERVED 3946:17]` dengan teks `#000000` & placeholder abu-abu; atau fill `surfaceInput` pada screen umum), `Boxed` (settings & create: radius 8dp, fill `surfaceInput`, outline `borderInput`). State: default, focus, error, disabled | Label di atas untuk `Boxed`; placeholder di dalam untuk `Pill`. Fokus: outline 2dp `primary`. `KeyboardOptions` sesuai tipe (email, password, number), `imeAction` Next/Done. Autofill via `semantics { contentType = … }` |
 | **VexPasswordField** | turunan | Tombol tampil/sembunyikan `[ASSUMPTION]` |
@@ -494,6 +500,7 @@ object VexTheme {
 |---|---|
 | **AppScaffold** | `Scaffold` + `BottomNav` + penanganan inset |
 | **BottomNav** | 5 tab (§7), dibuat **custom** (bukan `NavigationBar` M3), container warna `navBar` |
+| **VexBottomActionBar** | Slot CTA tetap di bawah (layar tanpa BottomNav): container lebar penuh, latar `navBar` (`#252525`), garis atas 1dp `border`, padding horizontal 20dp, atas 12dp, bawah 24dp + `navigationBarsPadding()` + `imePadding()`. Anak utama = `VexButton`. Dipakai di §8.6.1 |
 | **VexTopBar** | varian: `Home` (+ kiri, logo VEX kanan), `Profile` (+ kiri, username tengah, ikon menu kanan), `Ai` (ikon menu/drawer kiri, logo kanan, tanpa garis bawah), `Back` (panah + judul), `Create` (X/panah + judul kiri, aksi teks kanan), `Search` (SearchBar penuh) |
 | **AuthLayout** | judul besar tengah + slot form + blok bawah (teks + tombol) menempel di bawah |
 | **PageContainer** | padding horizontal + `widthIn(max = contentMaxWidth)` |
@@ -502,6 +509,7 @@ object VexTheme {
 
 | Composable | Dipakai di | Anatomi |
 |---|---|---|
+| **CarouselExhibitions** | Home (Coming Soon & carousel pameran lainnya) | Judul seksi (`titleLarge` SemiBold) + `LazyRow` dengan snap behavior (`SnapPosition.Start`), padding 24dp, gap item 12dp, garis pembatas 1dp `#313131` |
 | **EventBanner** | Home (carousel "Coming Soon"), sheet | Gambar landscape radius 8–12dp; `LazyRow` + snap |
 | **EventListItem** | Schedule (Approved/Waiting) | Thumbnail kiri ≈ 50% lebar rasio ≈ 16:9 (radius 4dp); kanan: tanggal (`titleLarge`), jam, "See details" (muted, kanan-bawah) |
 | **RequestListItem** | Schedule/Request | Avatar, nama, tanggal+jam muted kanan-atas, pesan maks 2 baris ellipsis |
@@ -559,7 +567,7 @@ Folder tambahan wajib tetap berisi subfolder tipe resource (`drawable/`), dan na
 |---|---|---|
 | `nav` | `ic_nav_home`, `ic_nav_schedule`, `ic_nav_ai`, `ic_nav_explore` (masing-masing `_outline` + `_filled`); `ic_nav_profile_*` hanya fallback bila belum ada foto | BottomNav (aktif = `_filled`). Ikon AI besar di state kosong chat memakai `ic_nav_ai_filled` |
 | `tab` | `ic_tab_posts`, `ic_tab_exhibits` (`_outline` + `_filled`) | Tab ikon di Profile (foto & kubus) |
-| `action` | `ic_action_add`, `_menu`, `_back`, `_close`, `_chevron_right`, `_chevron_down`, `_search`, `_filter`, `_calendar`, `_play`, `_new_chat`, `_visibility`, `_visibility_off` | TopBar, SearchBar, PostCard, dropdown, field password `[ASSUMPTION untuk visibility]` |
+| `action` | `ic_action_add`, `_menu`, `_back`, `_close`, `_chevron_left`, `_chevron_right`, `_chevron_down`, `_search`, `_filter`, `_calendar`, `_play`, `_new_chat`, `_visibility`, `_visibility_off` | TopBar, SearchBar, PostCard, dropdown, field password, navigasi bulan kalender `[ASSUMPTION untuk visibility]` |
 | `settings` | `ic_settings_profile`, `_email`, `_password`, `_account_status`, `_history`, `_theme`, `_language`, `_privacy`, `_help`, `_logout` | Halaman Settings |
 | `editor` | `ic_editor_text` (Aa), `ic_editor_panel`, `ic_editor_furniture` | Tool editor exhibit (§8.14); `ic_editor_panel` juga untuk penghitung "4/9 panels". Tombol warna = lingkaran swatch (bukan ikon) |
 | `status` | `ic_status_check_circle_filled`, `ic_status_circle_outline` | Checklist syarat Publish exhibit (§8.14) |
@@ -589,9 +597,11 @@ object VexIcons {
     }
     @DrawableRes val Add = R.drawable.ic_action_add
     @DrawableRes val Back = R.drawable.ic_action_back
+    @DrawableRes val ChevronLeft = R.drawable.ic_action_chevron_left
+    @DrawableRes val ChevronRight = R.drawable.ic_action_chevron_right
     // ... dst., satu entri per file
     @DrawableRes val LogoVex = R.drawable.logo_vex
-    @DrawableRes val LogoGoogle = R.drawable.logo_google
+    @DrawableRes val LogoGoogle = R.drawable.ic_google
 }
 
 @Composable
@@ -668,7 +678,7 @@ fun VexIcon(
 - **Tombol Google (Figma `4348:239`):**
   - Posisi: y = 512 dp – 560 dp (26 dp di bawah divider).
   - Bentuk: `Pill` (100 dp), lebar 304 dp, tinggi 48 dp.
-  - Background: **Solid White (`#FFFFFF`)**, tanpa outline.
+  - Background: **Solid White (`#FFFFFF`)**, dengan outline/border hitam 1dp (`#000000`).
   - Konten: Logo Google multi-warna di sisi kiri + teks **"Register with Google"** di tengah warna hitam (`#000000`, 16sp Medium) `[OBSERVED di Figma 3946:17]`.
     *(Catatan implementasi: teks wireframe tertulis "Register with Google". Pada implementasi Compose disarankan teks diambil dari `strings.xml` sehingga dapat dikonfigurasi menjadi "Sign in with Google" / "Continue with Google" tanpa mengubah visual pill putih).*
 - **Footer (Navigasi ke Register):**
@@ -700,7 +710,7 @@ fun VexIcon(
 - **Divider:**
   - Jarak 20 dp di bawah tombol Register, lebar 304 dp, tebal 1 dp, warna `#A5A5A5`.
 - **Tombol Google:**
-  - Bentuk: `Pill` (100 dp), lebar 304 dp, tinggi 48 dp, background **Solid White (`#FFFFFF`)**.
+  - Bentuk: `Pill` (100 dp), lebar 304 dp, tinggi 48 dp, background **Solid White (`#FFFFFF`)**, dengan outline/border hitam 1dp (`#000000`).
   - Konten: Logo Google multi-warna di sisi kiri + teks **"Login with Google"** warna hitam (`#000000`, 16sp Medium) `[OBSERVED pada wireframe Register]`.
 - **Footer (Navigasi ke Login):**
   - Helper text: **"Already have an account?"**, teks putih / `textSecondary`, ukuran 14sp, rata tengah horizontal.
@@ -757,38 +767,86 @@ fun VexIcon(
 
 ---
 
-### 8.6.1 Request Meeting (Dark Mode) `[OBSERVED: Wireframe - Request Meeting.png]`
+### 8.6.1 Request Meeting (Dark & Light Mode) `[OBSERVED Dark: Wireframe - Request Meeting.png, Light: Diturunkan dari Token Semantik]`
 - **Pemicu Alur:** Dibuka ketika pengguna menekan ikon kalender (`ic_action_calendar`) pada kartu karya `PostCard` di Home Feed (§8.6).
-- **Kerangka Halaman:** `SubPage` (Top bar dengan tombol kembali + konten scrollable + tombol CTA "Send Request" di bawah). Latar belakang kanvas `#1F1F1F`.
+- **Kerangka Halaman:** `SubPage` dengan **`VexBottomActionBar`** (Top bar dengan tombol kembali + konten scrollable + tombol CTA "Send Request" **fixed di bawah seperti bottom nav**, tidak ikut scroll). Latar belakang kanvas mengikuti `VexTheme.colors.bg` (Dark `#1F1F1F`, Light `#FFFFFF`).
+- **Dukungan Dark & Light Mode (Mapping Token Semantik):**
+  Seluruh elemen wajib menggunakan token `VexTheme.colors` agar otomatis menyesuaikan kedua mode:
+
+  | Elemen UI | Dark Mode | Light Mode | Token Semantik |
+  |---|---|---|---|
+  | Latar Belakang Kanvas | `#1F1F1F` | `#FFFFFF` | `colors.bg` |
+  | TopBar & Teks Judul | Teks `#FFFFFF` | Teks `#000000` | `colors.text` |
+  | Divider Pembatas Seksi | `#313131` / `White 10%` | `#DADADA` | `colors.border` |
+  | Header Hari Kalender | `White 40%` (`#8A8A92`) | `#8A8A92` | `colors.textMuted` |
+  | Angka Tanggal Normal | `#FFFFFF` | `#000000` | `colors.text` |
+  | Angka Tanggal Non-Bulan | `#555555` / `White 25%` | `#B5B5BD` | `colors.textDisabled` |
+  | Tanggal Terpilih (Lingkaran) | `BrandPurple` (`#BA18F5`) | `BrandPurple` (`#BA18F5`) | `colors.primary` (teks `onPrimary`) |
+  | Time Picker (Blok Aktif) | `BrandPurple` (`#BA18F5`) | `BrandPurple` (`#BA18F5`) | `colors.primary` (teks `onPrimary`) |
+  | Time Picker (Blok Tidak Aktif) | Ungu gelap / `White 10%` | `#E5E5E5` | `colors.surfaceInput` (teks `textMuted`) |
+  | Input Box "Message..." | Background `White 10%`, border `White 20%` | Background `#E5E5E5`, border `#BDBDBD` | `colors.surfaceInput` + `colors.borderInput` |
+  | Sticky Action Bar Container | `#252525` (`navBar`) | `#FFFFFF` (`navBar`) | `colors.navBar` |
+  | Divider Atas Action Bar | `#313131` | `#DADADA` | `colors.border` |
+  | Tombol CTA "Send Request" | `BrandPurple`, teks `#FFFFFF` | `BrandPurple`, teks `#FFFFFF` | `colors.primary` (teks `onPrimary`) |
+
 - **TopBar (`VexTopBar.Back`):**
-  - Sisi Kiri: Ikon kembali (panah kiri `ic_action_back`, 24 dp, putih `#FFFFFF`, margin kiri 22.5 dp).
-  - Judul: **"Request meeting"**, warna `#FFFFFF`, ukuran 20sp Medium 500.
-  - Garis Pembatas Bawah: Garis horizontal 1 dp warna `#313131` / `border` pada $y = 66\text{ dp}$.
-- **Seksi 1: Info & Banner Pameran:**
-  - Judul Pameran: mis. "6th International Expo", 18–20sp SemiBold 600, warna putih `#FFFFFF`, padding horizontal 24 dp, margin atas 20 dp.
-  - Banner Pameran: Kartu poster persegi panjang membulat (radius $12 - 16\text{ dp}$ / `VexRadius.lg`), rasio $\approx 16:9$, margin horizontal 24 dp, margin bawah 20 dp.
-  - Garis Pembatas: Garis horizontal 1 dp warna `#313131` / `border`.
-- **Seksi 2: Pemilihan Tanggal ("Chose Date"):**
-  - Judul Seksi: "Chose Date", 18sp SemiBold 600, warna putih `#FFFFFF`, padding horizontal 24 dp.
-  - Sub-label Tanggal Terpilih: e.g. "Sat, 26 September 2026", 14sp Medium 500, warna putih `#FFFFFF`, margin bawah 12 dp.
-  - **Kalender Interaktif (Grid 7 Kolom Compose):**
-    - Baris Header Hari: Mon, Tue, Wed, Thu, Fri, Sat, Sun (14sp, warna abu-abu `#8A8A92` / `textMuted`, rata tengah).
-    - Grid Angka Tanggal:
-      - Tanggal di luar bulan aktif (prev/next month): warna abu-abu gelap `#555555` (`textDisabled`).
-      - Tanggal bulan aktif: warna putih `#FFFFFF` (`text`).
-      - Tanggal Terpilih: Lingkaran penuh warna **`BrandPurple` (`#BA18F5`)**, teks angka putih tebal (contoh pada wireframe: tanggal 30 aktif).
-    - Margin horizontal kalender: 24 dp.
-  - Garis Pembatas: Garis horizontal 1 dp warna `#313131` / `border`.
-- **Seksi 3: Pemilihan Jam ("Chose Time"):**
-  - Judul Seksi: "Chose Time", 18sp SemiBold 600, warna putih `#FFFFFF`, padding horizontal 24 dp, margin atas 16 dp.
-  - Slot Waktu: Chip pilihan jam yang tersedia (mis. 09:00, 10:30, 14:00) yang disediakan oleh pemilik pameran.
-- **Seksi 4: Tombol CTA ("Send Request"):**
-  - Tombol **"Send Request"** (Primary CTA):
+  - Sisi Kiri: Ikon kembali (panah kiri `ic_action_back`, 24 dp, warna `colors.text`, margin kiri 22.5 dp).
+  - Judul: **"Request meeting"**, warna `colors.text`, ukuran 20sp Medium 500.
+  - Garis Pembatas Bawah: Garis horizontal 1 dp warna `colors.border` pada $y = 66\text{ dp}$.
+- **Konten Halaman (Scrollable via LazyColumn / verticalScroll):**
+  - **Seksi 1: Info & Banner Pameran:**
+    - Judul Pameran: mis. "6th International Expo", 18–20sp SemiBold 600, warna `colors.text`, padding horizontal 24 dp, margin atas 20 dp.
+    - Banner Pameran: Kartu poster persegi panjang membulat (radius $12 - 16\text{ dp}$ / `VexRadius.lg`), rasio $\approx 16:9$, margin horizontal 24 dp, margin bawah 20 dp.
+    - Garis Pembatas: Garis horizontal 1 dp warna `colors.border`.
+  - **Seksi 2: Pemilihan Tanggal ("Chose Date"):**
+    - Judul Seksi: "Chose Date", 18sp SemiBold 600, warna `colors.text`, padding horizontal 24 dp.
+    - **Header Navigasi Bulan & Tahun (Dinamis):**
+      - Judul Bulan & Tahun: mis. "September 2026", 16sp SemiBold, warna `colors.text`.
+      - Tombol Arah (Chevron): Dua tombol aksi `VexIcon(id = VexIcons.ChevronLeft)` dan `VexIcon(id = VexIcons.ChevronRight)` (20dp, warna `colors.text`, touch target minimal 36–48dp) untuk berpindah bulan dinamis secara lancar.
+    - Sub-label Tanggal Terpilih: e.g. "Sat, 26 September 2026", 14sp Medium 500, warna `colors.textMuted`, diformat dinamis via utilitas `DateFormatter` dari tanggal aktif `LocalDate`.
+    - **Kalender Interaktif (Grid 7 Kolom Dinamis via `java.time` + Desugaring):**
+      - Logika Tanggal: Menggunakan standard `java.time.LocalDate` dan `YearMonth` yang didukung `coreLibraryDesugaring` pada Android `minSdk = 24`. Tidak menggunakan pustaka UI eksternal guna mematuhi §2 Aturan Emas (Rule 9 & 10) serta menjaga konsistensi token semantik.
+      - Tinggi Grid Konsisten: Selalu membuat 42 sel (6 baris × 7 kolom) agar tinggi layout stabil tanpa getaran layout (jank) saat berpindah bulan. Hari pertama minggu dimulai dari Senin (Monday-first) sesuai wireframe.
+      - Baris Header Hari: Mon, Tue, Wed, Thu, Fri, Sat, Sun (14sp, warna `colors.textMuted`, rata tengah).
+      - Grid Angka Tanggal:
+        - Tanggal di luar bulan aktif (prev/next month): warna `colors.textDisabled`, tidak dapat dipilih (`clickable(enabled = false)`).
+        - Tanggal bulan aktif: warna `colors.text`, dapat diklik untuk memilih tanggal pertemuan.
+        - Tanggal Terpilih: Lingkaran penuh warna **`colors.primary` (`BrandPurple` `#BA18F5`)**, teks angka putih tebal `colors.onPrimary`.
+      - Margin horizontal kalender: 24 dp.
+    - Garis Pembatas: Garis horizontal 1 dp warna `colors.border`.
+  - **Seksi 3: Pemilihan Jam ("Chose Time" - Segmented Picker):**
+    - Judul Seksi: "Chose Time", 18sp SemiBold 600, warna `colors.text`, padding horizontal 24 dp, margin atas 16 dp, margin bawah 16 dp.
+    - **Segmented Time Picker Interaktif:**
+      - Terdiri dari 4 blok kontrol berjajar horizontal di tengah (padding horizontal 24 dp, gap $\approx 12\text{ dp}$):
+        1. Kotak Jam (Hour): Bentuk rounded box (radius 10–12 dp / `VexRadius.md`), ukuran $\approx 64 \times 72\text{ dp}$, background aktif **`colors.primary`**, teks angka jam (mis. "02") 28sp Medium 500 warna `colors.onPrimary`.
+        2. Tanda Titik Dua (Colon): Teks ":" 24sp warna `colors.text` di tengah vertikal.
+        3. Kotak Menit (Minute): Bentuk rounded box (radius 10–12 dp), background aktif **`colors.primary`**, teks angka menit (mis. "30") 28sp warna `colors.onPrimary`.
+        4. Toggle Periode (AM / PM):
+           - Dua kotak berdampingan: Kotak "AM" dan Kotak "PM".
+           - Kotak tidak aktif (mis. AM): background `colors.surfaceInput`, teks 18sp warna `colors.textMuted`.
+           - Kotak aktif (mis. PM): background solid **`colors.primary`**, teks 18sp warna `colors.onPrimary`.
+      - Perilaku: Mengetuk kotak jam/menit mengaktifkan input/picker pengubah waktu; mengetuk AM/PM menukar status periode aktif.
+    - Garis Pembatas: Garis horizontal 1 dp warna `colors.border` setelah time picker.
+  - **Seksi 4: Catatan Pesan ("Message..."):**
+    - Field Input Pesan Multiline (`VexTextField.Boxed` / setara textarea):
+      - Bentuk: Rounded rectangle (radius 8–10 dp / `VexRadius.md`), padding horizontal 24 dp, margin vertikal 16 dp.
+      - Background: `colors.surfaceInput`, outline border 1 dp tipis `colors.borderInput`.
+      - Placeholder: "Message...", warna `colors.textMuted`, ukuran 14–16sp. Teks isi: `colors.text`.
+      - Tinggi minimal: $\approx 120 - 140\text{ dp}$, mendukung input teks multiline. Sifat field: opsional.
+- **Footer Aksi Tetap (`VexBottomActionBar` - Fixed CTA):**
+  - **Tombol "Send Request" (Primary CTA):**
     - Bentuk: `Pill` (`RoundedCornerShape(full)` / 100 dp).
     - Dimensi: Lebar 374 dp (margin horizontal 19–20 dp), tinggi $52 - 56\text{ dp}$.
-    - Background: **`BrandPurple` (`#BA18F5`)**, teks "Send Request" putih (`#FFFFFF`), `labelLarge` (16sp Medium 500), rata tengah.
-    - Posisi: Menempel di bawah layar dengan `Modifier.navigationBarsPadding().imePadding()`, margin bawah 24 dp.
-- **Integrasi Backend:** Mengirimkan data permintaan pertemuan ke endpoint `POST /undangan` (Laravel API auth:sanctum) dengan payload ID pameran, tanggal, jam, dan pesan opsional. Permintaan ini otomatis masuk ke status *Waiting* di Schedule pengirim dan status *Request* di Schedule pemilik karya (§8.4).
+    - Background: **`colors.primary` (`BrandPurple` `#BA18F5`)**, teks "Send Request" `colors.onPrimary` (`#FFFFFF`), `labelLarge` (16sp Medium 500), rata tengah.
+  - **Posisi & Perilaku:**
+    - Diletakkan di dalam `Scaffold(bottomBar = { VexBottomActionBar(...) })`, **bukan di dalam kolom scroll**.
+    - Bar berlatar `colors.navBar` (Dark `#252525`, Light `#FFFFFF`) dengan garis atas 1 dp `colors.border`, menempel di bawah layar persis seperti Bottom Navigation Bar.
+    - Memiliki `Modifier.navigationBarsPadding().imePadding()` sehingga otomatis terangkat saat keyboard terbuka.
+    - State: `enabled` hanya bila tanggal dan jam valid telah dipilih; `loading` menampilkan spinner saat pengiriman request berlangsung.
+- **Alur & Integrasi Pengajuan Request (UI Layer):**
+  - Pengguna mengajukan permohonan pertemuan berdasarkan pameran karya tanpa harus mengetahui ruangan privat saat form diisi (cukup memilih tanggal, jam, dan mengisi pesan opsional).
+  - Saat "Send Request" ditekan dan berhasil, permintaan masuk status *Waiting* di Schedule pengirim dan status *Request* di Schedule pemilik karya (§8.4).
+  - **Ruangan pertemuan (room) dan tautan virtual baru diterima oleh pemohon setelah permintaan disetujui (Approved)** oleh penyelenggara pameran. Tautan dan ruangan ini nantinya diakses melalui tombol "Join Room" pada kartu event Schedule berstatus Approved (§8.4).
 
 ### 8.7 Profile
 - `VexTopBar.Profile` → avatar 96dp + (nama; di bawahnya `StatBlock` posts & exhibits) → baris tag (maks 4 + chip "+N") → bio → "Email" (muted) + nilai → "Phone" (muted) + nilai → `VexTabs.Icon` (foto = *posts*, kubus 3D = *exhibits*) → `MediaGrid` → bottom nav.
@@ -937,10 +995,22 @@ Account status, History, Theme, Language, Privacy policy, Help, detail karya, de
 9. Perilaku scroll top bar Home/Explore; konten empty/error tiap halaman.
 10. Library final (Navigation, Coil, DataStore, dll.) dan `minSdk`.
 11. Engine 3D editor exhibit (library, gesture orbit/zoom), jumlah panel template Event, isi tool panel/furnitur/warna, dan bagaimana exhibit dilihat orang lain.
+12. Standardisasi komponen `VexBottomActionBar` pada seluruh layar alur SubPage/CreateFlow lainnya (§8.9 Change Email, §8.10 Change Password, §8.11 Forgot Password, §8.13 Create Post, §8.14 Create Exhibit) agar pola CTA fixed seragam di seluruh aplikasi.
 
 ---
 
 ## Changelog
+- **0.4.5**: Modernisasi **Kalender Dinamis Request Meeting (§8.6.1)**:
+  - **Dukungan `java.time` & Core Library Desugaring**: Mengganti kalender statis/hardcode dengan kalkulasi tanggal dinamis berbasis `java.time.LocalDate` dan `YearMonth`. Mengaktifkan `isCoreLibraryDesugaringEnabled = true` dan menambahkan `com.android.tools:desugar_jdk_libs:2.1.5` agar berjalan lancar di `minSdk = 24` tanpa melanggar §2 Aturan Emas (bebas library UI pihak ketiga).
+  - **Navigasi Bulan Interaktif**: Menambahkan header navigasi bulan dan tahun ("September 2026") dengan tombol panah kiri/kanan interaktif untuk berpindah bulan.
+  - **Aset Ikon Chevron**: Menambahkan aset vector `ic_action_chevron_left.xml` dan `ic_action_chevron_right.xml` (24dp solid hitam tintable) ke `res/drawable/` serta mendaftarkannya di `VexIcons.kt` (`ChevronLeft` dan `ChevronRight`).
+  - **Utilitas Pemformat Tanggal**: Menambahkan modul `com.ven.app.util.DateFormatter` untuk pemformatan string tanggal dinamis sesuai standar arsitektur §3.2.
+- **0.4.4**: Pembaruan spesifikasi **Request Meeting (§8.6.1)**:
+  - **Sticky Bottom Action Bar**: Tombol "Send Request" dipindahkan dari flow scroll ke footer tetap `VexBottomActionBar` (`Scaffold(bottomBar = ...)`), berlatar `navBar` (`#252525`) dengan garis atas 1dp `border` (`#313131`), margin horizontal 20dp, terikat `navigationBarsPadding().imePadding()` sehingga posisinya fixed mirip `BottomNav`.
+  - **Pola Global (§5.2 & §6.2)**: Menambahkan definisi pola *Sticky Bottom CTA Bar* dan mendaftarkan composable `VexBottomActionBar`.
+  - **Pemilihan Jam (Chose Time)**: Mengganti spesifikasi chip preset menjadi **Segmented Time Picker Interaktif** (`HH : MM` + toggle `AM`/`PM`) dengan kotak berlatar `BrandPurple` (`#BA18F5`) dan radius 10–12dp sesuai wireframe.
+  - **Field Pesan**: Menambahkan Seksi 4 berupa field input multiline "Message..." (`VexTextField.Boxed` / textarea) bersifat opsional.
+  - **Alur Ruangan**: Menegaskan alur UI bahwa pemohon tidak perlu memilih atau mengetahui ruangan privat saat mengajukan request; room dan tautan baru diterima setelah request disetujui (Approved).
 - **0.4.3**: Analisis mendalam wireframe dark mode dari folder `D:\front-mobile\dark-mode\register\` dan `D:\front-mobile\dark-mode\home\`:
   - **Register (§8.3)**: Memperbarui spesifikasi 4 field input pill putih `#FFFFFF` (Email, Username, Password, Confirm Password), CTA Register, tombol Google "Login with Google", dan footer navigasi Login.
   - **Onboarding Interest (§8.1)**: Memperbarui 14 kategori chip dark mode (`#343333`), penempatan link "Maybe later" ungu dengan divider 1dp, dan tombol Save ungu.
