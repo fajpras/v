@@ -66,4 +66,77 @@
     <string name="request_meeting_banner_content_desc">Banner pameran</string>
     <string name="request_meeting_prev_month">Bulan sebelumnya</string>
     <string name="request_meeting_next_month">Bulan berikutnya</string>
+
+    <!-- Profile Strings -->
+    <string name="profile_tab_posts">Postingan</string>
+    <string name="profile_tab_exhibits">Pameran</string>
+    <string name="profile_stat_posts">postingan</string>
+    <string name="profile_stat_exhibits">pameran</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_phone_label">Telepon</string>
+    <string name="profile_skills_title">Keahlian</string>
+    <string name="profile_menu">Menu</string>
+    <string name="profile_add">Buat</string>
+    <string name="profile_empty_posts">Belum ada postingan</string>
+    <string name="profile_empty_exhibits">Belum ada pameran</string>
+    <string name="profile_error">Gagal memuat profil</string>
+    <string name="profile_retry">Coba lagi</string>
+    <string name="settings_title">Pengaturan</string>
+
+    <!-- Settings Strings -->
+    <string name="settings_activity_title">Pengaturan dan aktivitas</string>
+    <string name="settings_section_account">Akun</string>
+    <string name="settings_section_interface">Antarmuka</string>
+    <string name="settings_section_security_others">Keamanan &amp; Lainnya</string>
+    <string name="settings_section_login">Masuk</string>
+
+    <string name="settings_item_profile">Profil</string>
+    <string name="settings_item_change_email">Ubah email</string>
+    <string name="settings_item_change_password">Ubah kata sandi</string>
+    <string name="settings_item_account_status">Status akun</string>
+    <string name="settings_item_history">Riwayat</string>
+    <string name="settings_item_theme">Tema</string>
+    <string name="settings_item_language">Bahasa</string>
+    <string name="settings_item_privacy_policy">Kebijakan privasi</string>
+    <string name="settings_item_help">Bantuan</string>
+    <string name="settings_item_logout">Keluar</string>
+
+    <!-- Settings Subpages -->
+    <string name="settings_edit_profile_title">Edit profil</string>
+    <string name="settings_save_changes">Simpan perubahan</string>
+    <string name="settings_new_photo">Foto Baru</string>
+    <string name="settings_username_label">Username</string>
+    <string name="settings_name_label">Nama</string>
+    <string name="settings_phone_label">Telepon</string>
+    <string name="settings_description_label">Deskripsi</string>
+    <string name="settings_interest_label">Minat</string>
+
+    <string name="settings_new_email_label">Email baru</string>
+    <string name="settings_password_label">Kata sandi</string>
+    <string name="settings_confirm_password_label">Konfirmasi kata sandi</string>
+    <string name="settings_current_password_label">Kata sandi saat ini</string>
+    <string name="settings_new_password_label">Kata sandi baru</string>
+    <string name="settings_change_email_helper">Anda perlu memverifikasi email baru Anda agar perubahan diterapkan</string>
+    <string name="settings_send_otp">Kirim OTP</string>
+    <string name="settings_verify_email_title">Verifikasi email</string>
+    <string name="settings_didnt_get_mail">tidak menerima email?</string>
+    <string name="settings_resend">Kirim ulang</string>
+
+    <string name="settings_theme_light">Terang</string>
+    <string name="settings_theme_dark">Gelap</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_indonesia">Bahasa Indonesia</string>
+
+    <string name="settings_disable_account_title">Nonaktifkan Akun</string>
+    <string name="settings_disable_account_desc">Tindakan ini akan menonaktifkan akun Anda sampai Anda masuk kembali dan mengaktifkannya.</string>
+
+    <string name="settings_history_title">Riwayat</string>
+    <string name="settings_history_see_details">Lihat detail</string>
+    <string name="settings_history_detail_msg">Permintaan Anda yang dijadwalkan pada %1$s pukul %2$s telah selesai.</string>
+
+    <!-- Logout Dialog -->
+    <string name="settings_logout_dialog_title">Keluar</string>
+    <string name="settings_logout_dialog_msg">Apakah Anda yakin ingin keluar dari akun Anda?</string>
+    <string name="settings_logout_cancel">Batal</string>
+    <string name="settings_logout_confirm">Keluar</string>
 </resources>

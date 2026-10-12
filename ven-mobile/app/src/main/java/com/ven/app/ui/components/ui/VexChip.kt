@@ -92,14 +92,26 @@ fun VexTagChip(
 fun VexCounterChip(
     count: Int,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
 ) {
     val colors = VexTheme.colors
+    val clickModifier = if (onClick != null) {
+        Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = ripple(color = colors.text.copy(alpha = 0.2f)),
+            role = Role.Button,
+            onClick = onClick,
+        )
+    } else {
+        Modifier
+    }
 
     Box(
         modifier = modifier
             .height(VexSize.chipSm)
             .clip(RoundedCornerShape(VexRadius.full))
             .background(colors.surfaceInput)
+            .then(clickModifier)
             .padding(horizontal = VexSpace.s2, vertical = VexSpace.s1),
         contentAlignment = Alignment.Center,
     ) {
@@ -111,6 +123,48 @@ fun VexCounterChip(
         )
     }
 }
+
+/**
+ * Chip keahlian / skill yang dapat diklik untuk membuka daftar lengkap.
+ * Menggunakan latar warna kategori dari [CategoryColors].
+ */
+@Composable
+fun VexSkillChip(
+    text: String,
+    categoryColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    val textColor = onCategoryColor(categoryColor)
+    val clickModifier = if (onClick != null) {
+        Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = ripple(color = textColor.copy(alpha = 0.2f)),
+            role = Role.Button,
+            onClick = onClick,
+        )
+    } else {
+        Modifier
+    }
+
+    Box(
+        modifier = modifier
+            .height(VexSize.chipSm)
+            .clip(RoundedCornerShape(VexRadius.full))
+            .background(categoryColor)
+            .then(clickModifier)
+            .padding(horizontal = VexSpace.s3, vertical = VexSpace.s1),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = textColor,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
 
 @Preview(name = "VexSelectableChip - Dark", showBackground = true, backgroundColor = 0xFF1F1F1F)
 @Composable

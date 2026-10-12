@@ -33,4 +33,16 @@ sealed class Screen(val route: String) {
 
     // Settings Flow
     data object Settings : Screen("settings")
+    data object SettingsProfile : Screen("settings/profile")
+    data object SettingsEmail : Screen("settings/email")
+    data object SettingsVerifyEmail : Screen("settings/verify_email/{email}") {
+        fun createRoute(email: String) = "settings/verify_email/$email"
+    }
+    data object SettingsPassword : Screen("settings/password")
+    data object SettingsTheme : Screen("settings/theme")
+    data object SettingsLanguage : Screen("settings/language")
+    data object SettingsAccountStatus : Screen("settings/account_status")
+    data object SettingsHistory : Screen("settings/history")
+    data object SettingsPrivacy : Screen("settings/privacy")
+    data object SettingsHelp : Screen("settings/help")
 }

@@ -15,9 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.ven.app.data.api.SessionManager
+import com.ven.app.data.preference.ThemePreferences
 import com.ven.app.ui.components.layout.AppScaffold
 import com.ven.app.ui.screens.auth.ForgotPasswordEvent
 import com.ven.app.ui.screens.auth.ForgotPasswordScreen
@@ -30,9 +35,23 @@ import com.ven.app.ui.screens.home.HomeScreen
 import com.ven.app.ui.screens.home.HomeUiState
 import com.ven.app.ui.screens.home.SampleHomeUiState
 import com.ven.app.ui.screens.onboarding.InterestScreen
+import com.ven.app.ui.screens.profile.ProfileScreen
+import com.ven.app.ui.screens.profile.dummyProfileUiState
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingEvent
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingScreen
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingViewModel
+import com.ven.app.ui.screens.settings.AccountStatusScreen
+import com.ven.app.ui.screens.settings.ChangeEmailScreen
+import com.ven.app.ui.screens.settings.ChangePasswordScreen
+import com.ven.app.ui.screens.settings.HistoryScreen
+import com.ven.app.ui.screens.settings.LanguageScreen
+import com.ven.app.ui.screens.settings.ProfileSettingsScreen
+import com.ven.app.ui.screens.settings.SettingsPlaceholderScreen
+import com.ven.app.ui.screens.settings.SettingsScreen
+import com.ven.app.ui.screens.settings.ThemeScreen
+import com.ven.app.ui.screens.settings.VerifyEmailScreen
+import com.ven.app.ui.screens.settings.dummyHistoryEntries
+import com.ven.app.ui.screens.settings.dummySettingsProfile
 import com.ven.app.ui.theme.VexTheme
 
 /**
@@ -41,6 +60,14 @@ import com.ven.app.ui.theme.VexTheme
  */
 @Composable
 fun AppNavHost() {
+    val context = LocalContext.current
+    val themePreferences = remember { ThemePreferences.getInstance(context) }
+    val sessionManager = remember { SessionManager.getInstance(context) }
+    val currentTheme by themePreferences.themeMode.collectAsStateWithLifecycle()
+    var profileData by remember { mutableStateOf(dummySettingsProfile) }
+    var selectedLanguage by remember { mutableStateOf("English") }
+    var isAccountDisabled by remember { mutableStateOf(false) }
+
     val startDestination = Screen.Login.route
     val navController = rememberNavController()
     val forgotViewModel: ForgotPasswordViewModel = viewModel()
@@ -183,6 +210,9 @@ fun AppNavHost() {
                 onRequestMeetingClick = { postId ->
                     navController.navigate(Screen.RequestMeeting.createRoute(postId))
                 },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                },
             )
         }
 
@@ -216,6 +246,125 @@ fun AppNavHost() {
                 onSendRequestClick = requestViewModel::sendRequest,
             )
         }
+
+        // -------------------------------------------------------------
+        // 7. SubPage: Settings and Activity Flow
+        // -------------------------------------------------------------
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigateToProfile = { navController.navigate(Screen.SettingsProfile.route) },
+                onNavigateToChangeEmail = { navController.navigate(Screen.SettingsEmail.route) },
+                onNavigateToChangePassword = { navController.navigate(Screen.SettingsPassword.route) },
+                onNavigateToAccountStatus = { navController.navigate(Screen.SettingsAccountStatus.route) },
+                onNavigateToHistory = { navController.navigate(Screen.SettingsHistory.route) },
+                onNavigateToTheme = { navController.navigate(Screen.SettingsTheme.route) },
+                onNavigateToLanguage = { navController.navigate(Screen.SettingsLanguage.route) },
+                onNavigateToPrivacyPolicy = { navController.navigate(Screen.SettingsPrivacy.route) },
+                onNavigateToHelp = { navController.navigate(Screen.SettingsHelp.route) },
+                onLogoutConfirmed = {
+                    sessionManager.clearSession()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+            )
+        }
+
+        composable(Screen.SettingsProfile.route) {
+            ProfileSettingsScreen(
+                initialData = profileData,
+                onBackClick = { navController.popBackStack() },
+                onSaveProfile = { updated ->
+                    profileData = updated
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Screen.SettingsEmail.route) {
+            ChangeEmailScreen(
+                onBackClick = { navController.popBackStack() },
+                onSendOtpClick = { newEmail ->
+                    navController.navigate(Screen.SettingsVerifyEmail.createRoute(newEmail))
+                },
+            )
+        }
+
+        composable(
+            route = Screen.SettingsVerifyEmail.route,
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email").orEmpty()
+            VerifyEmailScreen(
+                email = email,
+                onBackClick = { navController.popBackStack() },
+                onVerifySuccess = {
+                    navController.popBackStack(Screen.Settings.route, inclusive = false)
+                },
+            )
+        }
+
+        composable(Screen.SettingsPassword.route) {
+            ChangePasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onSendOtpClick = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Screen.SettingsTheme.route) {
+            ThemeScreen(
+                currentTheme = currentTheme,
+                onThemeSelected = { newTheme ->
+                    themePreferences.setThemeMode(newTheme)
+                },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsLanguage.route) {
+            LanguageScreen(
+                currentLanguage = selectedLanguage,
+                onLanguageSelected = { selectedLanguage = it },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsAccountStatus.route) {
+            AccountStatusScreen(
+                isDisabledInitial = isAccountDisabled,
+                onStatusChange = { isAccountDisabled = it },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsHistory.route) {
+            HistoryScreen(
+                entries = dummyHistoryEntries,
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsPrivacy.route) {
+            SettingsPlaceholderScreen(
+                title = "Privacy Policy",
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsHelp.route) {
+            SettingsPlaceholderScreen(
+                title = "Help",
+                onBackClick = { navController.popBackStack() },
+            )
+        }
     }
 }
 
@@ -223,8 +372,10 @@ fun AppNavHost() {
 fun MainHomeScreen(
     uiState: HomeUiState = SampleHomeUiState,
     onRequestMeetingClick: (postId: String) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
 ) {
     var currentTab by remember { mutableStateOf(BottomNavTab.Home) }
+    var profileState by remember { mutableStateOf(dummyProfileUiState) }
 
     when (currentTab) {
         BottomNavTab.Home -> {
@@ -235,6 +386,17 @@ fun MainHomeScreen(
                 onRequestMeetingClick = onRequestMeetingClick,
                 onView3dClick = { /* TODO: handle view 3D */ },
                 onBannerClick = { /* TODO: handle banner click */ },
+            )
+        }
+        BottomNavTab.Profile -> {
+            ProfileScreen(
+                uiState = profileState,
+                onTabSelected = { currentTab = it },
+                onCreateClick = { /* TODO: handle create click */ },
+                onMenuClick = onNavigateToSettings,
+                onProfileTabChange = { profileState = profileState.copy(selectedTab = it) },
+                onSkillSheetToggle = { profileState = profileState.copy(isSkillSheetOpen = it) },
+                onMediaClick = { /* TODO: handle media click */ },
             )
         }
         else -> {
@@ -258,3 +420,4 @@ fun MainHomeScreen(
         }
     }
 }
+

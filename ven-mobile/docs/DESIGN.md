@@ -1,6 +1,6 @@
 # design.md: VEN / VEX (Virtual Exhibition), Android (Kotlin + Jetpack Compose)
 
-> **Versi:** 0.4.4 (Update Request Meeting: Sticky Bottom Action Bar, Segmented Time Picker, Message Field)
+> **Versi:** 0.4.7 (Update Settings: Settings & Activity Flow, Profile Edit, Change Email/Password, Theme, Language, Account Status, History Sheet)
 > **Pembaca utama:** AI/developer yang mengimplementasikan UI.
 > **Penanda:**
 > - `[OBSERVED]` = diambil langsung dari wireframe/Figma.
@@ -111,9 +111,11 @@ ven-mobile/app/src/main/
 │   │   │       ├── AuthInterceptor.kt     # Menambahkan header "Authorization: Bearer <token>"
 │   │   │       └── ErrorInterceptor.kt    # Menangani error HTTP 401 (token kedaluwarsa), 422 (validasi)
 │   │   ├── local/
-│   │   │   └── datastore/
-│   │   │       ├── TokenManager.kt        # Simpan & baca token Sanctum secara aman
-│   │   │       └── UserPreferences.kt     # Preferensi tema (Dark/Light/System), bahasa, dsb.
+│   │   │   ├── datastore/
+│   │   │   │   ├── TokenManager.kt        # Simpan & baca token Sanctum secara aman
+│   │   │   │   └── UserPreferences.kt     # Preferensi tema, bahasa, dsb.
+│   │   │   └── preference/
+│   │   │       └── ThemePreferences.kt    # StateFlow reaktif Dark/Light/System via SharedPreferences
 │   │   └── repository/                    # Implementasi Repository (Single Source of Truth)
 │   │       ├── AuthRepositoryImpl.kt
 │   │       ├── ProfileRepositoryImpl.kt
@@ -169,18 +171,25 @@ ven-mobile/app/src/main/
 │   │   │   │   ├── SearchBar.kt
 │   │   │   │   ├── SegmentedPill.kt
 │   │   │   │   ├── Skeleton.kt
-│   │   │   │   └── VexBottomSheet.kt
+│   │   │   │   ├── Avatar.kt
+│   │   │   │   ├── VexBottomSheet.kt
+│   │   │   │   ├── VexListRow.kt
+│   │   │   │   ├── VexSectionLabel.kt
+│   │   │   │   ├── VexRadioRow.kt
+│   │   │   │   └── VexCheckRow.kt
 │   │   │   ├── layout/                    # Kerangka layout (lihat §6.2)
 │   │   │   │   ├── AppScaffold.kt
 │   │   │   │   ├── VexTopBar.kt
 │   │   │   │   ├── BottomNav.kt
 │   │   │   │   ├── AuthLayout.kt
+│   │   │   │   ├── VexBottomActionBar.kt
 │   │   │   │   └── PageContainer.kt
 │   │   │   └── feature/                   # Komponen lintas-layar (lihat §6.3)
 │   │   │       ├── CarouselExhibitions.kt
 │   │   │       ├── PostCard.kt
 │   │   │       ├── EventBanner.kt
 │   │   │       ├── EventListItem.kt
+│   │   │       ├── HistoryListItem.kt
 │   │   │       ├── RequestListItem.kt
 │   │   │       ├── MediaGrid.kt
 │   │   │       ├── ProfileHeader.kt
@@ -192,8 +201,20 @@ ven-mobile/app/src/main/
 │   │   │   ├── schedule/                  # ScheduleScreen (Approved, Waiting, Request tabs + Detail Sheet)
 │   │   │   ├── ai/                        # AiChatScreen (Chat view + History drawer)
 │   │   │   ├── explore/                   # ExploreScreen (Media grid discovery, search & filter)
-│   │   │   ├── profile/                   # ProfileScreen (User stats, posts/exhibits tabs)
-│   │   │   ├── settings/                  # SettingsScreen & sub-pages (Profile, Email, Password, Theme, Language)
+│   │   │   ├── profile/                   # ProfileScreen, ProfileUiState, ProfileDummyData (Own profile gra._.aph)
+│   │   │   ├── settings/                  # Settings flow & sub-pages
+│   │   │   │   ├── SettingsScreen.kt
+│   │   │   │   ├── ProfileSettingsScreen.kt
+│   │   │   │   ├── ChangeEmailScreen.kt
+│   │   │   │   ├── VerifyEmailScreen.kt
+│   │   │   │   ├── ChangePasswordScreen.kt
+│   │   │   │   ├── ThemeScreen.kt
+│   │   │   │   ├── LanguageScreen.kt
+│   │   │   │   ├── AccountStatusScreen.kt
+│   │   │   │   ├── HistoryScreen.kt
+│   │   │   │   ├── SettingsPlaceholderScreen.kt
+│   │   │   │   ├── SettingsUiState.kt
+│   │   │   │   └── SettingsDummyData.kt
 │   │   │   └── create/
 │   │   │       ├── post/                  # CreatePostScreen (Media picker, metadata form)
 │   │   │       └── exhibit/               # CreateExhibitScreen (Template picker, 3D Canvas Editor)
@@ -214,7 +235,8 @@ ven-mobile/app/src/main/
 ├── res/                                   # Resource Standar Android
 │   ├── font/                              # elms_sans_*.ttf (400, 500, 600, 700)
 │   ├── values/                            # strings.xml, themes.xml (Splash theme)
-│   └── values-in/                         # strings.xml (Bahasa Indonesia)
+│   ├── values-in/                         # strings.xml (Bahasa Indonesia)
+│   └── drawable-nodpi/                    # poster_*.webp (gambar dummy yang telah dioptimasi)
 └── res-icons/                             # FOLDER KHUSUS ikon & logo dari Figma (lihat §7)
     └── drawable/                          # ic_nav_*.xml, ic_action_*.xml, logo_*.xml
 ```
@@ -346,6 +368,8 @@ Warna aksen belum ditentukan. Empat warna dari wireframe dipertahankan, sisanya 
 | Others | `#616161` | PLACEHOLDER |
 
 Teks di tag: putih, **kecuali** latar terang (3D oranye, Animation hijau muda) yang kontras putihnya rendah (±2:1). Buat fungsi `onCategoryColor(bg)` yang memilih hitam/putih berdasar luminans, jangan hardcode.
+Tag keahlian pada halaman Profil (§8.7) menggunakan pemetaan warna `CategoryColorMap` dan kalkulasi warna teks kontras `onCategoryColor()`. Dua keahlian tambahan yang mengisi indikator `+2` (`UI/UX`, `Software`) berstatus `[PLACEHOLDER]`.
+
 
 ### 4.4 Dimensi, radius, tipografi, motion
 
@@ -480,13 +504,15 @@ object VexTheme {
 | **VexDropdown** | `Boxed` + ikon chevron-bawah | `ExposedDropdownMenu`; opsi = daftar kategori |
 | **OtpInput** | 5 kotak, radius 8dp, outline | **5 digit** `[OBSERVED]`; auto-pindah, dukung paste, `KeyboardType.Number`, kotak error berwarna `danger` |
 | **SearchBar** | default, fokus, dengan tombol filter | Pill, tinggi 46dp, ikon search kiri, placeholder "Search" |
-| **VexTabs** | `Text` (Approved/Waiting/Request, kolom sama lebar), `Icon` (foto / kubus 3D) | Aktif: teks/ikon `text` (ikon terisi) + garis bawah 1dp selebar tab; nonaktif: `textMuted`. Bangun sendiri (jangan indikator M3 default) |
-| **VexChip** | `Selectable`, `Tag`, `Counter` ("+2") | Pill. Selectable default: fill `surfaceInput`; **selected: fill `primary`, teks putih** `[ASSUMPTION]`. Tag: fill warna kategori (§4.3) |
-| **Avatar** | `sm` 24, `md` 40, `lg` 96, bulat | `ContentScale.Crop`, fallback inisial |
-| **VexBottomSheet** | konten bebas | Bungkus `ModalBottomSheet`: radius atas 28dp, handle abu 40×4dp, container `surface` (dark) / putih (light), scrim `scrim` |
+| **VexTabs** | `Text` (Approved/Waiting/Request, kolom sama lebar), `Icon` (`VexIconTabs` foto / kubus 3D) `[TERIMPLEMENTASI]` | Aktif: teks/ikon `text` (ikon terisi) + garis bawah 1dp selebar tab; nonaktif: `textMuted`. Bangun sendiri (jangan indikator M3 default) |
+| **VexChip** | `Selectable`, `Tag`, `Counter` ("+2"), `Skill` (`VexSkillChip`) | Pill. Selectable default: fill `surfaceInput`; **selected: fill `primary`, teks putih** `[ASSUMPTION]`. Tag: fill warna kategori (§4.3). Skill: clickable berlatar warna kategori |
+| **Avatar** | `sm` 24, `md` 40, `lg` 96, bulat `[TERIMPLEMENTASI]` | `ContentScale.Crop`, fallback inisial |
+| **VexBottomSheet** | konten bebas `[TERIMPLEMENTASI]` | Bungkus `ModalBottomSheet`: radius atas 28dp, handle abu 40×4dp, container `surface` (dark) / putih (light), scrim `scrim` |
 | **VexDrawer** | – | Bungkus `ModalNavigationDrawer`, lebar 300dp, container `bg` |
-| **ListRow** | ikon + label + chevron; varian `Danger` | Settings. Tinggi ≥ 56dp, ikon 24dp, jarak ikon-label 16dp |
-| **SectionLabel** | – | `bodyMedium` warna `textMuted` + `HorizontalDivider` |
+| **VexListRow** | ikon + label + chevron; varian `Danger` `[TERIMPLEMENTASI]` | Baris item menu Settings. Tinggi min 56dp, ikon 24dp, jarak ikon-label 16dp, chevron kanan (Normal), merah danger tanpa chevron (Logout) |
+| **VexSectionLabel** | label kategori seksi `[TERIMPLEMENTASI]` | `bodyMedium` Medium 500 warna `textMuted`, padding horizontal 24dp, atas 12dp, bawah 8dp |
+| **VexRadioRow** | label (+ deskripsi) + radio bulatan `[TERIMPLEMENTASI]` | Pilihan tunggal Theme & Account Status. Lingkaran luar 22dp, dot aktif 12dp warna `primary`, deskripsi `bodySmall` warna `textMuted` |
+| **VexCheckRow** | label + tanda centang kanan `[TERIMPLEMENTASI]` | Pilihan bahasa (Language). Tanda centang `ic_action_check` 20dp warna `text` bila terpilih |
 | **FloatingToolButton** | default, selected | Lingkaran 48dp, fill `surface`, ikon putih (editor exhibit) |
 | **VexIcon** | tint, ukuran | Pembungkus `Icon` untuk drawable dari `VexIcons` (§7). Satu-satunya cara menampilkan ikon |
 | **SegmentedPill** | 2 opsi (Post / Exhibit) | Pill melayang, fill `bg`/`surface` + border `border`; terpilih: teks `text`, tidak: `textMuted` |
@@ -501,7 +527,7 @@ object VexTheme {
 | **AppScaffold** | `Scaffold` + `BottomNav` + penanganan inset |
 | **BottomNav** | 5 tab (§7), dibuat **custom** (bukan `NavigationBar` M3), container warna `navBar` |
 | **VexBottomActionBar** | Slot CTA tetap di bawah (layar tanpa BottomNav): container lebar penuh, latar `navBar` (`#252525`), garis atas 1dp `border`, padding horizontal 20dp, atas 12dp, bawah 24dp + `navigationBarsPadding()` + `imePadding()`. Anak utama = `VexButton`. Dipakai di §8.6.1 |
-| **VexTopBar** | varian: `Home` (+ kiri, logo VEX kanan), `Profile` (+ kiri, username tengah, ikon menu kanan), `Ai` (ikon menu/drawer kiri, logo kanan, tanpa garis bawah), `Back` (panah + judul), `Create` (X/panah + judul kiri, aksi teks kanan), `Search` (SearchBar penuh) |
+| **VexTopBar** | varian: `Home` (+ kiri, logo VEX kanan), `Profile` (+ kiri `ic_action_add`, username tengah, ikon menu kanan `ic_action_menu` -> Settings), `Ai` (ikon menu/drawer kiri, logo kanan, tanpa garis bawah), `Back` (panah + judul + opsional `trailingContent` aksi teks/ikon kanan), `Create` (X/panah + judul kiri, aksi teks kanan), `Search` (SearchBar penuh) |
 | **AuthLayout** | judul besar tengah + slot form + blok bawah (teks + tombol) menempel di bawah |
 | **PageContainer** | padding horizontal + `widthIn(max = contentMaxWidth)` |
 
@@ -512,11 +538,13 @@ object VexTheme {
 | **CarouselExhibitions** | Home (Coming Soon & carousel pameran lainnya) | Judul seksi (`titleLarge` SemiBold) + `LazyRow` dengan snap behavior (`SnapPosition.Start`), padding 24dp, gap item 12dp, garis pembatas 1dp `#313131` |
 | **EventBanner** | Home (carousel "Coming Soon"), sheet | Gambar landscape radius 8–12dp; `LazyRow` + snap |
 | **EventListItem** | Schedule (Approved/Waiting) | Thumbnail kiri ≈ 50% lebar rasio ≈ 16:9 (radius 4dp); kanan: tanggal (`titleLarge`), jam, "See details" (muted, kanan-bawah) |
+| **HistoryListItem** | Settings / History `[TERIMPLEMENTASI]` | Thumbnail banner 150dp rasio 16:9 (radius 4dp); kanan: tanggal bold (`titleMedium`), jam (`bodyMedium`), "See details" kanan bawah (`bodySmall`, `textMuted`). Klik menampilkan `VexBottomSheet` detail status request |
 | **RequestListItem** | Schedule/Request | Avatar, nama, tanggal+jam muted kanan-atas, pesan maks 2 baris ellipsis |
 | **EventDetailSheet** | Schedule | Isi `VexBottomSheet` (§8.4) |
 | **PostCard** | Home | Header `@username` kiri + ikon kalender & play kanan; gambar penuh lebar tanpa radius |
-| **MediaGrid** | Explore, Profile, picker media | Grid 3 kolom, celah 2dp; dukung tile 2-kolom (`GridItemSpan(2)`) |
-| **ProfileHeader / StatBlock** | Profile | Avatar 96dp, nama, statistik (angka tebal + label muted), tag, bio, email, phone |
+| **MediaGrid** | Explore, Profile, picker media `[TERIMPLEMENTASI]` | Grid 3 kolom, celah 2dp; dukung tile 2-kolom (`GridItemSpan(2)`), rasio poster `VexAspect.poster` |
+| **ProfileHeader / StatBlock** | Profile `[TERIMPLEMENTASI]` | Avatar 96dp, nama (maks 2 baris), statistik (angka tebal + label muted), baris chip skill clickable + sheet, bio, email, phone |
+
 | **ChatBubbleUser / ChatMessageAi** | AI | Lihat §8.12 |
 
 ---
@@ -567,7 +595,7 @@ Folder tambahan wajib tetap berisi subfolder tipe resource (`drawable/`), dan na
 |---|---|---|
 | `nav` | `ic_nav_home`, `ic_nav_schedule`, `ic_nav_ai`, `ic_nav_explore` (masing-masing `_outline` + `_filled`); `ic_nav_profile_*` hanya fallback bila belum ada foto | BottomNav (aktif = `_filled`). Ikon AI besar di state kosong chat memakai `ic_nav_ai_filled` |
 | `tab` | `ic_tab_posts`, `ic_tab_exhibits` (`_outline` + `_filled`) | Tab ikon di Profile (foto & kubus) |
-| `action` | `ic_action_add`, `_menu`, `_back`, `_close`, `_chevron_left`, `_chevron_right`, `_chevron_down`, `_search`, `_filter`, `_calendar`, `_play`, `_new_chat`, `_visibility`, `_visibility_off` | TopBar, SearchBar, PostCard, dropdown, field password, navigasi bulan kalender `[ASSUMPTION untuk visibility]` |
+| `action` | `ic_action_add`, `_menu`, `_back`, `_close`, `_chevron_left`, `_chevron_right`, `_chevron_down`, `_search`, `_filter`, `_calendar`, `_play`, `_new_chat`, `_visibility`, `_visibility_off`, `_edit`, `_check` | TopBar, SearchBar, PostCard, dropdown, field password, navigasi bulan kalender, mode edit profile (`_edit`), opsi bahasa (`_check`) |
 | `settings` | `ic_settings_profile`, `_email`, `_password`, `_account_status`, `_history`, `_theme`, `_language`, `_privacy`, `_help`, `_logout` | Halaman Settings |
 | `editor` | `ic_editor_text` (Aa), `ic_editor_panel`, `ic_editor_furniture` | Tool editor exhibit (§8.14); `ic_editor_panel` juga untuk penghitung "4/9 panels". Tombol warna = lingkaran swatch (bukan ikon) |
 | `status` | `ic_status_check_circle_filled`, `ic_status_circle_outline` | Checklist syarat Publish exhibit (§8.14) |
@@ -848,20 +876,137 @@ fun VexIcon(
   - Saat "Send Request" ditekan dan berhasil, permintaan masuk status *Waiting* di Schedule pengirim dan status *Request* di Schedule pemilik karya (§8.4).
   - **Ruangan pertemuan (room) dan tautan virtual baru diterima oleh pemohon setelah permintaan disetujui (Approved)** oleh penyelenggara pameran. Tautan dan ruangan ini nantinya diakses melalui tombol "Join Room" pada kartu event Schedule berstatus Approved (§8.4).
 
-### 8.7 Profile
-- `VexTopBar.Profile` → avatar 96dp + (nama; di bawahnya `StatBlock` posts & exhibits) → baris tag (maks 4 + chip "+N") → bio → "Email" (muted) + nilai → "Phone" (muted) + nilai → `VexTabs.Icon` (foto = *posts*, kubus 3D = *exhibits*) → `MediaGrid` → bottom nav.
-- Nama panjang boleh 2 baris. Empty state per tab `[TODO copy]`.
+### 8.7 Profile (Dark & Light Mode) `[OBSERVED: Wireframe profile.png, profile-1.png, profile-2.png]`
+- **Cakupan Pengguna:** Mengimplementasikan varian **own profile `gra._.aph`** (profil pemilik akun yang sedang login). Varian other-user (`shaf.one`) tidak diimplementasikan.
+- **Kerangka Halaman:** `AppScaffold` dengan Bottom Navigation Bar tetap diam di bawah (Tab 5 `Profile` aktif, avatar berlingkar border teks). Latar belakang kanvas mengikuti `VexTheme.colors.bg` (Dark `#1F1F1F`, Light `#FFFFFF`).
+- **TopBar (`VexTopBar.Profile`):**
+  - Tinggi 56 dp + status bar inset, latar menyatu dengan kanvas `colors.bg`. Tanpa garis pembatas bawah di Dark Mode `[OBSERVED]`.
+  - Sisi Kiri: Ikon "+" (`ic_action_add`, 24 dp, warna `colors.text`, margin kiri 16–24 dp) → membuka alur Create Flow (New Post / New Exhibit §8.13/§8.14).
+  - Sisi Tengah: Teks username `@username` / `gra._.aph`, `titleMedium` (18sp SemiBold 600, warna `colors.text`), diposisikan tepat di tengah horizontal.
+  - Sisi Kanan: Ikon Menu Hamburger (`ic_action_menu`, 24 dp, warna `colors.text`, margin kanan 16–24 dp) → membuka halaman Settings (§8.8).
+- **Struktur Konten Utama (Single Vertical Scroll via LazyVerticalGrid):**
+  Seluruh konten atas dirangkai menggunakan `LazyVerticalGrid(columns = 3)` dengan item span penuh (`GridItemSpan(maxLineSpan)`) untuk header, sehingga scroll vertikal menyatu tanpa konflik (nested-scroll free) dengan grid poster di bawahnya.
+  1. **Header Profil & Statistik (`ProfileHeader`):**
+     - Sisi Kiri: `Avatar` bulat 96 dp (`AvatarSize.Lg` / `VexSize.avatarLg`), menampilkan inisial huruf kapital nama pengguna (fallback "G") berlatar `surfaceInput` bila belum ada foto karya pengguna.
+     - Sisi Kanan: Nama lengkap pengguna (mis. "Terra Faqih Satria Madjid", `titleMedium` SemiBold, warna `colors.text`, mendukung hingga 2 baris).
+     - Di bawah nama: Baris statistik karya (`StatBlock`):
+       - Blok Posts: Angka tebal (`titleMedium` Bold 700, warna `colors.text`) + label `posts` (`bodyMedium`, warna `colors.textMuted`).
+       - Blok Exhibits: Angka tebal (`titleMedium` Bold 700, warna `colors.text`) + label `exhibits` (`bodyMedium`, warna `colors.textMuted`).
+  2. **Baris Tag Keahlian (Skills):**
+     - Menampilkan maksimal 4 chip keahlian pertama yang terlihat (`VexSkillChip`) dengan latar belakang warna kategori masing-masing (§4.3 `CategoryColorMap`), teks kontras dinamis via `onCategoryColor()`.
+     - Chip sisa: Jika terdapat lebih dari 4 keahlian, tampil chip penghitung `+N` (`VexCounterChip`, mis. "+2") berlatar `surfaceInput`.
+     - **Interaktivitas Bottom Sheet:** Seluruh chip keahlian dan chip `+N` dapat diklik (`clickable`) untuk memunculkan `VexBottomSheet` berisi judul "Skills" (`titleLarge` SemiBold) dan `FlowRow` seluruh daftar keahlian lengkap pengguna.
+  3. **Bio Pengguna:**
+     - Deskripsi bebas pengguna (`bodyMedium`, warna `colors.text`), padding horizontal 24 dp.
+  4. **Informasi Kontak:**
+     - Email: Label "Email" (`bodyMedium`, warna `colors.textMuted`) + nilai alamat email pengguna (`bodyLarge`, warna `colors.text`).
+     - Phone: Label "Phone" (`bodyMedium`, warna `colors.textMuted`) + nilai nomor telepon (`bodyLarge`, warna `colors.text`).
+  5. **Tab Switcher Ikon (`VexIconTabs`):**
+     - Terdiri dari 2 tab selebar layar (masing-masing weight 1f):
+       - Tab 1 (Kiri): **Posts** (ikon galeri foto `ic_tab_posts_outline`/`filled`) — **default terpilih**.
+       - Tab 2 (Kanan): **Exhibits** (ikon kubus 3D `ic_tab_exhibits_outline`/`filled`).
+     - Tab Aktif: Ikon varian `_filled` warna `colors.text` + garis indikator bawah 1 dp warna `colors.text`.
+     - Tab Nonaktif: Ikon varian `_outline` warna `colors.textMuted` + garis indikator bawah 1 dp warna `colors.border`.
+  6. **Grid Karya / Poster (`MediaGrid` 3 Kolom):**
+     - Menampilkan item karya pengguna sesuai tab yang aktif (karya post atau karya exhibit).
+     - Format: **3 Kolom** dengan celah antar poster **2 dp** (`spacedBy(2.dp)` vertikal dan horizontal), tanpa sudut melengkung (radius 0 dp), rasio poster $\approx 0.7071$ (`VexAspect.poster`).
+     - State Kosong (Empty State): Jika tidak ada karya pada tab aktif, menampilkan teks keterangan netral di tengah ("No posts yet" atau "No exhibits yet", `bodyMedium`, warna `colors.textMuted`).
+- **Dukungan Dark & Light Mode:**
+  Seluruh elemen UI mematuhi token semantik `VexTheme.colors` (latar, teks, border, surface). Warna chip keahlian konsisten bersumber dari `CategoryColorMap`.
+- **Lokalisasi Bahasa:**
+  Label sistem UI ("Posts", "Exhibits", "Email", "Phone", "Skills", "Menu", dll.) bersumber dari resource `strings.xml` (bahasa Inggris sebagai standar, `values-in` untuk terjemahan Indonesia). Konten yang diisi pengguna (nama, bio, email, telepon, nama skill) bersifat bebas tanpa lokalisasi sistem.
 
-### 8.8 Settings and activity
-- SubPage (back + judul). Kelompok dengan `SectionLabel`: **Account** (Profile, Change email, Change password, Account status, History), **Interface** (Theme, Language), **Security & Others** (Privacy policy, Help), **Login** (Logout: ikon + teks `danger`, tanpa chevron, konfirmasi dialog `[ASSUMPTION]`).
-- *Theme* = pilihan mode (§4.7). *Language* = `AppCompatDelegate.setApplicationLocales` `[ASSUMPTION]`.
+### 8.8 Settings and activity `[OBSERVED: Wireframe dark & light]`
+- **Kerangka Halaman:** `SubPage` (TopBar `VexTopBar.Back` dengan judul "Settings and activity" + garis pemisah 1dp `border`). Latar belakang kanvas `#1F1F1F` (Dark) / `#FFFFFF` (Light). Scroll vertikal dengan padding bawah 32dp (`VexSpace.s8`).
+- **Pengelompokan Menu (`VexSectionLabel` + `VexListRow`):**
+  1. **Account:**
+     - `ic_settings_profile` → Profile (§8.8.1)
+     - `ic_settings_email` → Change email (§8.9)
+     - `ic_settings_password` → Change password (§8.10)
+     - `ic_settings_account_status` → Account status (§8.8.4)
+     - `ic_settings_history` → History (§8.8.5)
+  2. **Interface:**
+     - `ic_settings_theme` → Theme (§8.8.2)
+     - `ic_settings_language` → Language (§8.8.3)
+  3. **Security & Others:**
+     - `ic_settings_privacy` → Privacy policy (§8.10.1)
+     - `ic_settings_help` → Help (§8.10.1)
+  4. **Login:**
+     - `ic_settings_logout` → Logout: item baris Danger (`isDanger = true`, teks & ikon warna `colors.danger`, tanpa chevron).
+     - Menekan Logout memicu `AlertDialog` konfirmasi: Judul "Log Out", Pesan "Are you sure you want to log out of your account?", tombol "Cancel" (`colors.text`) dan "Log Out" (`colors.danger`). Jika dikonfirmasi, `SessionManager.clearSession()` dipanggil dan navigasi mereset tumpukan kembali ke Screen Login (`popUpTo(0)`).
 
-### 8.9 Change email → Verify email
-- *Change email:* back + judul → field `Boxed` berlabel (New email, Password, Confirm password) → helper 12sp muted "You need to verify your new email for the change to be applied" → **Send OTP** (bawah).
-- *Verify email:* label "OTP" → `OtpInput` 5 kotak → "didn't get your mail?" + **Resend** (TextLink). Cooldown Resend ±60 dtk dengan hitung mundur `[ASSUMPTION]`; verifikasi otomatis saat 5 digit terisi `[ASSUMPTION]`. State: salah/kedaluwarsa, loading.
+#### 8.8.1 Profile Settings & Edit Profile `[OBSERVED: Wireframe Setting Profile]`
+- **Mode Tampilan (View Mode):**
+  - TopBar: `VexTopBar.Back` dengan judul **"Profile"** + trailing icon pensil (`ic_action_edit`, 22dp).
+  - Avatar pengguna berukuran 96dp (`AvatarSize.Lg`) di tengah + teks link "New Photo" (`colors.primaryText`).
+  - Formulir input dinonaktifkan (`enabled = false`) untuk Username, Name, Phone, Description (`VexTextFieldVariant.Boxed`).
+  - Seksi "Interest": Chip kategori minat pengguna dalam format nonaktif.
+- **Mode Edit (Edit Mode):**
+  - Mengklik ikon pensil beralih ke Edit Mode.
+  - TopBar: Judul berubah menjadi **"Edit profile"** + tombol teks aksi kanan **"Save changes"** (`colors.primaryText`, `titleSmall` SemiBold).
+  - Seluruh field input (`Username`, `Name`, `Phone`, `Description`) menjadi aktif untuk disunting.
+  - Chip kategori minat (`VexSelectableChip` dalam `FlowRow`) interaktif untuk memilih/menghapus kategori minat.
+  - Menekan "Save changes" menyimpan data ke state lokal, memicu callback update profil, dan mengembalikan tampilan ke View Mode.
 
-### 8.10 Change password
-- Seperti Change email. Field: Current password, New password, Confirm password → **Send OTP** → halaman Verify OTP yang sama `[ASSUMPTION]`.
+#### 8.8.2 Theme Settings `[OBSERVED: Wireframe Setting Theme]`
+- **TopBar:** `VexTopBar.Back` dengan judul **"Theme"**.
+- **Opsi Tema (`VexRadioRow`):**
+  - **Light:** Mengatur tema aplikasi ke Light mode.
+  - **Dark:** Mengatur tema aplikasi ke Dark mode (default).
+- **Mekanisme Persistensi:**
+  - Preferensi tema disimpan secara persisten di SharedPreferences lewat `ThemePreferences`.
+  - Di-expose via `StateFlow<ThemeMode>` reaktif yang diobservasi oleh `MainActivity` dan `AppNavHost` (`collectAsStateWithLifecycle()`).
+  - Perubahan tema langsung memperbarui seluruh tampilan aplikasi secara dinamis tanpa perlu restart aplikasi.
+
+#### 8.8.3 Language Settings `[OBSERVED: Wireframe Setting Language]`
+- **TopBar:** `VexTopBar.Back` dengan judul **"Language"**.
+- **Opsi Bahasa (`VexCheckRow`):**
+  - **English** (default sistem aplikasi).
+  - **Bahasa Indonesia**.
+- Terpilih ditandai dengan ikon centang kanan (`ic_action_check`, 20dp, warna `colors.text`).
+
+#### 8.8.4 Account Status `[OBSERVED: Wireframe Setting Account Status]`
+- **TopBar:** `VexTopBar.Back` dengan judul **"Account status"**.
+- **Opsi Penonaktifan (`VexRadioRow`):**
+  - Label: **"Disable Account"** (SemiBold).
+  - Deskripsi: *"This action will deactivate your account until you log back in and reactivate it."* (`bodySmall`, `textMuted`).
+  - Radio indicator ungu aktif ketika akun berstatus dinonaktifkan.
+
+#### 8.8.5 History (Riwayat Pameran / Pertemuan) `[OBSERVED: Wireframe History]`
+- **TopBar:** `VexTopBar.Back` dengan judul **"History"**.
+- **Daftar Riwayat (`HistoryListItem`):**
+  - Menampilkan daftar `LazyColumn` kartu riwayat.
+  - Anatomi kartu: Banner thumbnail landscape 16:9 di sisi kiri (lebar 150dp, radius 4dp), tanggal pameran tebal (mis. "24th Sep 2026", `titleMedium`), jam ("02.00 PM", `bodyMedium`), dan tautan "See details" di kanan bawah (`bodySmall`, `colors.textMuted`).
+- **Modal Detail (`VexBottomSheet`):**
+  - Mengklik salah satu kartu memunculkan bottom sheet detail.
+  - Menampilkan poster banner ukuran besar rasio 16:9 (`VexRadius.md`).
+  - Teks deskripsi status request: *"Your request which is scheduled in **<Tanggal Lengkap>** at **<Jam>** has been finished."* dengan penegasan font tebal pada tanggal dan waktu.
+
+### 8.9 Change email → Verify email `[OBSERVED: Wireframe Setting Email]`
+- **Change Email Screen:**
+  - TopBar: `VexTopBar.Back` dengan judul **"Change email"**.
+  - Form field berlabel `Boxed`: **New email**, **Password**, **Confirm password**.
+  - Teks pembantu (*helper*): *"You need to verify your new email for the change to be applied"* (12sp `bodySmall`, `colors.textMuted`).
+  - Tombol CTA lengket di bawah (`VexBottomActionBar`): Tombol utama `Pill` **"Send OTP"**, aktif hanya bila seluruh field valid dan konfirmasi password cocok.
+- **Verify Email Screen (`VerifyEmailScreen`):**
+  - TopBar: `VexTopBar.Back` dengan judul **"Verify email"**.
+  - Label: "OTP" (`titleMedium` SemiBold).
+  - Input OTP: `OtpInput` **6 digit** (distandarisasi sesuai arsitektur backend Laravel REST API).
+  - Bawah: Teks pertanyaan *"didn’t get your mail?"* dan aksi **"Resend"** (`VexButtonVariant.TextLink`) dengan hitung mundur cooldown 60 detik.
+  - Saat 6 digit selesai diinput, verifikasi otomatis berhasil dan kembali ke Settings.
+
+### 8.10 Change password `[OBSERVED: Wireframe Setting Password]`
+- **TopBar:** `VexTopBar.Back` dengan judul **"Change password"**.
+- **Form Field:** Field `VexPasswordField` (Boxed):
+  - **Current password**
+  - **New password**
+  - **Confirm password**
+- **Tombol CTA Bawah (`VexBottomActionBar`):**
+  - Tombol utama `Pill` **"Send OTP"**, aktif ketika formulir terisi lengkap dan kedua kata sandi baru sesuai.
+  - Menekan tombol memicu proses pengiriman token OTP dan kembali ke halaman Settings/Verify.
+
+### 8.10.1 Privacy Policy & Help
+- Halaman placeholder minimal (`SettingsPlaceholderScreen`) dengan `VexTopBar.Back` dan pesan status "Coming Soon" netral, memastikan navigasi bebas dead-link.
 
 ### 8.11 Forgot Password (Dark Mode) `[OBSERVED: Figma node 4372:689]`
 - **Kerangka Halaman:** `SubPage` (Top bar dengan tombol kembali + form + tombol CTA menempel di bawah). Latar belakang kanvas `#1F1F1F`.

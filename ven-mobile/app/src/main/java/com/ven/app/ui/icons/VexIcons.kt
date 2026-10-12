@@ -36,6 +36,8 @@ object VexIcons {
     @DrawableRes val Add = R.drawable.ic_action_add
     @DrawableRes val Menu = R.drawable.ic_action_menu
     @DrawableRes val Back = R.drawable.ic_action_back
+    @DrawableRes val Edit = R.drawable.ic_action_edit
+    @DrawableRes val Check = R.drawable.ic_action_check
     @DrawableRes val Close = 0            // TODO: R.drawable.ic_action_close
     @DrawableRes val ChevronLeft = R.drawable.ic_action_chevron_left
     @DrawableRes val ChevronRight = R.drawable.ic_action_chevron_right
