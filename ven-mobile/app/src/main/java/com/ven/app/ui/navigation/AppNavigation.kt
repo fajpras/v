@@ -31,6 +31,9 @@ import com.ven.app.ui.screens.auth.LoginRoute
 import com.ven.app.ui.screens.auth.RegisterRoute
 import com.ven.app.ui.screens.auth.ResetPasswordScreen
 import com.ven.app.ui.screens.auth.VerifyOtpScreen
+import com.ven.app.ui.screens.explore.ExploreDetailScreen
+import com.ven.app.ui.screens.explore.ExploreScreen
+import com.ven.app.ui.screens.explore.SearchScreen
 import com.ven.app.ui.screens.home.HomeScreen
 import com.ven.app.ui.screens.home.HomeUiState
 import com.ven.app.ui.screens.home.SampleHomeUiState
@@ -59,7 +62,7 @@ import com.ven.app.ui.theme.VexTheme
  * Menghubungkan seluruh alur autentikasi, onboarding, dan destinasi utama.
  */
 @Composable
-fun AppNavHost() {
+fun AppNavHost(showExplore: Boolean = false) {
     val context = LocalContext.current
     val themePreferences = remember { ThemePreferences.getInstance(context) }
     val sessionManager = remember { SessionManager.getInstance(context) }
@@ -68,7 +71,7 @@ fun AppNavHost() {
     var selectedLanguage by remember { mutableStateOf("English") }
     var isAccountDisabled by remember { mutableStateOf(false) }
 
-    val startDestination = Screen.Login.route
+    val startDestination = if (showExplore) Screen.Home.route else Screen.Login.route
     val navController = rememberNavController()
     val forgotViewModel: ForgotPasswordViewModel = viewModel()
     val forgotState by forgotViewModel.uiState.collectAsStateWithLifecycle()
@@ -207,11 +210,18 @@ fun AppNavHost() {
         // -------------------------------------------------------------
         composable(Screen.Home.route) {
             MainHomeScreen(
+                initialTab = if (showExplore) BottomNavTab.Explore else BottomNavTab.Home,
                 onRequestMeetingClick = { postId ->
                     navController.navigate(Screen.RequestMeeting.createRoute(postId))
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
+                },
+                onExploreSearchClick = {
+                    navController.navigate(Screen.ExploreSearch.route)
+                },
+                onExplorePostClick = { postId ->
+                    navController.navigate(Screen.ExplorePostDetail.createRoute(postId))
                 },
             )
         }
@@ -244,6 +254,38 @@ fun AppNavHost() {
                 onPeriodChange = requestViewModel::onPeriodChange,
                 onMessageChange = requestViewModel::onMessageChange,
                 onSendRequestClick = requestViewModel::sendRequest,
+            )
+        }
+
+        // -------------------------------------------------------------
+        // 6b. SubPage: Explore Search (Recents + hasil) & Post Detail
+        // -------------------------------------------------------------
+        composable(Screen.ExploreSearch.route) {
+            SearchScreen(
+                onBackClick = { navController.popBackStack() },
+                onPostClick = { postId ->
+                    navController.navigate(Screen.ExplorePostDetail.createRoute(postId))
+                },
+            )
+        }
+
+        composable(
+            route = Screen.ExplorePostDetail.route,
+            arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId").orEmpty()
+            ExploreDetailScreen(
+                postId = postId,
+                onBackClick = { navController.popBackStack() },
+                onRequestMeetingClick = { id ->
+                    navController.navigate(Screen.RequestMeeting.createRoute(id))
+                },
+                onView3dClick = { /* TODO: handle view 3D */ },
             )
         }
 
@@ -371,10 +413,13 @@ fun AppNavHost() {
 @Composable
 fun MainHomeScreen(
     uiState: HomeUiState = SampleHomeUiState,
+    initialTab: BottomNavTab = BottomNavTab.Home,
     onRequestMeetingClick: (postId: String) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+    onExploreSearchClick: () -> Unit = {},
+    onExplorePostClick: (postId: String) -> Unit = {},
 ) {
-    var currentTab by remember { mutableStateOf(BottomNavTab.Home) }
+    var currentTab by remember { mutableStateOf(initialTab) }
     var profileState by remember { mutableStateOf(dummyProfileUiState) }
 
     when (currentTab) {
@@ -399,6 +444,13 @@ fun MainHomeScreen(
                 onMediaClick = { /* TODO: handle media click */ },
             )
         }
+        BottomNavTab.Explore -> {
+            ExploreScreen(
+                onTabSelected = { currentTab = it },
+                onSearchClick = onExploreSearchClick,
+                onMediaClick = { post -> onExplorePostClick(post.id) },
+            )
+        }
         else -> {
             AppScaffold(
                 currentTab = currentTab,
@@ -420,4 +472,3 @@ fun MainHomeScreen(
         }
     }
 }
-

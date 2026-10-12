@@ -25,7 +25,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeMode by themePreferences.themeMode.collectAsStateWithLifecycle()
             VexTheme(mode = themeMode) {
-                AppNavHost()
+                AppNavHost(
+                    showExplore = BuildConfig.DEBUG &&
+                        intent.getBooleanExtra("ven.showExplore", false),
+                )
             }
         }
     }

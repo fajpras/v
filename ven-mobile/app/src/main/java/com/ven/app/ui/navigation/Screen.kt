@@ -31,6 +31,12 @@ sealed class Screen(val route: String) {
         fun createRoute(postId: String) = "request_meeting/$postId"
     }
 
+    // Explore Flow
+    data object ExploreSearch : Screen("explore_search")
+    data object ExplorePostDetail : Screen("explore_post/{postId}") {
+        fun createRoute(postId: String) = "explore_post/$postId"
+    }
+
     // Settings Flow
     data object Settings : Screen("settings")
     data object SettingsProfile : Screen("settings/profile")

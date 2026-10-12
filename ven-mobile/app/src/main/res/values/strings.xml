@@ -139,4 +139,20 @@
     <string name="settings_logout_dialog_msg">Are you sure you want to log out of your account?</string>
     <string name="settings_logout_cancel">Cancel</string>
     <string name="settings_logout_confirm">Log Out</string>
+
+    <!-- Explore Strings -->
+    <string name="explore_search_hint">Search</string>
+    <string name="explore_filter_cd">Filter</string>
+    <string name="explore_empty">No results found</string>
+    <string name="explore_category_title">Category</string>
+    <string name="explore_reset">Reset</string>
+    <string name="explore_back_cd">Back</string>
+    <string name="search_recents_title">Recents</string>
+    <string name="search_remove_cd">Remove</string>
+    <string name="search_tab_for_you">For you</string>
+    <string name="search_tab_accounts">Accounts</string>
+    <string name="search_tab_posts">Posts</string>
+    <string name="search_tab_exhibits">Exhibits</string>
+    <string name="explore_detail_posts">Posts</string>
+    <string name="explore_detail_exhibits">Exhibits</string>
 </resources>
