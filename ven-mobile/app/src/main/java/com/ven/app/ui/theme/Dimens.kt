@@ -35,3 +35,9 @@ object VexSize {
     val authContentWidth = 304.dp
     val interestContentWidth = 364.dp
 }
+
+object VexAspect {
+    val poster = 0.7071f
+    val feedFallback = 4f / 5f
+}
+

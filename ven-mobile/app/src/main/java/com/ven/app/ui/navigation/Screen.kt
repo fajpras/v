@@ -22,6 +22,11 @@ sealed class Screen(val route: String) {
     data object Explore : Screen("explore")
     data object Profile : Screen("profile")
 
+    // Explore Sub-Page: Scrollable Post Feed
+    data object PostsFeed : Screen("posts_feed?postId={postId}") {
+        fun createRoute(postId: String = "") = "posts_feed?postId=$postId"
+    }
+
     // Create Content Flow
     data object CreatePost : Screen("create_post")
     data object CreateExhibit : Screen("create_exhibit")
@@ -31,6 +36,24 @@ sealed class Screen(val route: String) {
         fun createRoute(postId: String) = "request_meeting/$postId"
     }
 
+    // Explore Flow
+    data object ExploreSearch : Screen("explore_search")
+    data object ExplorePostDetail : Screen("explore_post/{postId}") {
+        fun createRoute(postId: String) = "explore_post/$postId"
+    }
+
     // Settings Flow
     data object Settings : Screen("settings")
+    data object SettingsProfile : Screen("settings/profile")
+    data object SettingsEmail : Screen("settings/email")
+    data object SettingsVerifyEmail : Screen("settings/verify_email/{email}") {
+        fun createRoute(email: String) = "settings/verify_email/$email"
+    }
+    data object SettingsPassword : Screen("settings/password")
+    data object SettingsTheme : Screen("settings/theme")
+    data object SettingsLanguage : Screen("settings/language")
+    data object SettingsAccountStatus : Screen("settings/account_status")
+    data object SettingsHistory : Screen("settings/history")
+    data object SettingsPrivacy : Screen("settings/privacy")
+    data object SettingsHelp : Screen("settings/help")
 }

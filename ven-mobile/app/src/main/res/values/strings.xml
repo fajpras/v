@@ -66,4 +66,136 @@
     <string name="request_meeting_banner_content_desc">Exhibition banner</string>
     <string name="request_meeting_prev_month">Previous month</string>
     <string name="request_meeting_next_month">Next month</string>
+
+    <!-- Profile Strings -->
+    <string name="profile_tab_posts">Posts</string>
+    <string name="profile_tab_exhibits">Exhibits</string>
+    <string name="profile_stat_posts">posts</string>
+    <string name="profile_stat_exhibits">exhibits</string>
+    <string name="profile_email_label">Email</string>
+    <string name="profile_phone_label">Phone</string>
+    <string name="profile_skills_title">Skills</string>
+    <string name="profile_menu">Menu</string>
+    <string name="profile_add">Create</string>
+    <string name="profile_empty_posts">No posts yet</string>
+    <string name="profile_empty_exhibits">No exhibits yet</string>
+    <string name="profile_error">Failed to load profile</string>
+    <string name="profile_retry">Retry</string>
+    <string name="settings_title">Settings</string>
+
+    <!-- Settings Strings -->
+    <string name="settings_activity_title">Settings and activity</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_section_interface">Interface</string>
+    <string name="settings_section_security_others">Security &amp; Others</string>
+    <string name="settings_section_login">Login</string>
+
+    <string name="settings_item_profile">Profile</string>
+    <string name="settings_item_change_email">Change email</string>
+    <string name="settings_item_change_password">Change password</string>
+    <string name="settings_item_account_status">Account status</string>
+    <string name="settings_item_history">History</string>
+    <string name="settings_item_theme">Theme</string>
+    <string name="settings_item_language">Language</string>
+    <string name="settings_item_privacy_policy">Privacy policy</string>
+    <string name="settings_item_help">Help</string>
+    <string name="settings_item_logout">Logout</string>
+
+    <!-- Settings Subpages -->
+    <string name="settings_edit_profile_title">Edit profile</string>
+    <string name="settings_save_changes">Save changes</string>
+    <string name="settings_new_photo">New Photo</string>
+    <string name="settings_username_label">Username</string>
+    <string name="settings_name_label">Name</string>
+    <string name="settings_phone_label">Phone</string>
+    <string name="settings_description_label">Description</string>
+    <string name="settings_interest_label">Interest</string>
+
+    <string name="settings_new_email_label">New email</string>
+    <string name="settings_password_label">Password</string>
+    <string name="settings_confirm_password_label">Confirm password</string>
+    <string name="settings_current_password_label">Current password</string>
+    <string name="settings_new_password_label">New password</string>
+    <string name="settings_change_email_helper">You need to verify your new email for the change to be applied</string>
+    <string name="settings_send_otp">Send OTP</string>
+    <string name="settings_verify_email_title">Verify email</string>
+    <string name="settings_didnt_get_mail">didn’t get your mail?</string>
+    <string name="settings_resend">Resend</string>
+
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_indonesia">Bahasa Indonesia</string>
+
+    <string name="settings_disable_account_title">Disable Account</string>
+    <string name="settings_disable_account_desc">This action will deactivate your account until you log back in and reactivate it.</string>
+
+    <string name="settings_history_title">History</string>
+    <string name="settings_history_see_details">See details</string>
+    <string name="settings_history_detail_msg">Your request which is scheduled in %1$s at %2$s has been finished.</string>
+
+    <!-- Logout Dialog -->
+    <string name="settings_logout_dialog_title">Log Out</string>
+    <string name="settings_logout_dialog_msg">Are you sure you want to log out of your account?</string>
+    <string name="settings_logout_cancel">Cancel</string>
+    <string name="settings_logout_confirm">Log Out</string>
+
+<<<<<<< Updated upstream
+    <!-- Explore Strings -->
+    <string name="explore_search_hint">Search</string>
+    <string name="explore_filter_cd">Filter</string>
+    <string name="explore_empty">No results found</string>
+    <string name="explore_category_title">Category</string>
+    <string name="explore_reset">Reset</string>
+    <string name="explore_back_cd">Back</string>
+    <string name="search_recents_title">Recents</string>
+    <string name="search_remove_cd">Remove</string>
+    <string name="search_tab_for_you">For you</string>
+    <string name="search_tab_accounts">Accounts</string>
+    <string name="search_tab_posts">Posts</string>
+    <string name="search_tab_exhibits">Exhibits</string>
+    <string name="explore_detail_posts">Posts</string>
+    <string name="explore_detail_exhibits">Exhibits</string>
+=======
+    <!-- Schedule Strings -->
+    <string name="schedule_title">Schedule</string>
+    <string name="schedule_search_placeholder">Search</string>
+    <string name="schedule_tab_approved">Approved</string>
+    <string name="schedule_tab_waiting">Waiting</string>
+    <string name="schedule_tab_request">Request</string>
+    <string name="schedule_see_details">See details</string>
+    <string name="schedule_join_room">Join Room</string>
+    <string name="schedule_approve">Approve</string>
+    <string name="schedule_reject">Reject</string>
+    <string name="schedule_approved_detail_prefix">Your request which is scheduled in </string>
+    <string name="schedule_approved_detail_suffix"> has been approved. The room will be available on said time, please attend the meeting as scheduled.</string>
+    <string name="schedule_waiting_detail_prefix">Your request which is scheduled in </string>
+    <string name="schedule_waiting_detail_suffix"> has been sent and is waiting for approval. Please wait patiently.</string>
+    <string name="schedule_requested_for_prefix">Requested for </string>
+    <string name="schedule_empty_approved">No approved schedules</string>
+    <string name="schedule_empty_waiting">No pending requests</string>
+    <string name="schedule_empty_request">No incoming requests</string>
+    <string name="schedule_action_approved_success">Request approved</string>
+    <string name="schedule_action_rejected_success">Request rejected</string>
+    <string name="schedule_action_join_room_sim">Entering meeting room...</string>
+
+    <!-- Explore Strings -->
+    <string name="explore_search_placeholder">Search</string>
+    <string name="explore_filter_action">Filter</string>
+    <string name="explore_back_action">Back</string>
+    <string name="explore_recents_title">Recents</string>
+    <string name="explore_remove_history">Remove from history</string>
+    <string name="explore_tab_for_you">For you</string>
+    <string name="explore_tab_accounts">Accounts</string>
+    <string name="explore_tab_posts">Posts</string>
+    <string name="explore_tab_exhibits">Exhibits</string>
+    <string name="explore_section_accounts">Accounts</string>
+    <string name="explore_section_posts">Posts</string>
+    <string name="explore_filter_title">Category</string>
+    <string name="explore_filter_reset">Reset</string>
+    <string name="explore_empty_results">No results for \"%1$s\"</string>
+    <string name="explore_empty_history">No recent searches</string>
+    <string name="explore_empty_discovery">No content to explore yet</string>
+    <string name="explore_posts_title">Posts</string>
+>>>>>>> Stashed changes
 </resources>

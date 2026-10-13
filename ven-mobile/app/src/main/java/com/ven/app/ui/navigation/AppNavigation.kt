@@ -15,9 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.ven.app.data.api.SessionManager
+import com.ven.app.data.preference.ThemePreferences
 import com.ven.app.ui.components.layout.AppScaffold
 import com.ven.app.ui.screens.auth.ForgotPasswordEvent
 import com.ven.app.ui.screens.auth.ForgotPasswordScreen
@@ -26,13 +31,37 @@ import com.ven.app.ui.screens.auth.LoginRoute
 import com.ven.app.ui.screens.auth.RegisterRoute
 import com.ven.app.ui.screens.auth.ResetPasswordScreen
 import com.ven.app.ui.screens.auth.VerifyOtpScreen
+<<<<<<< Updated upstream
+import com.ven.app.ui.screens.explore.ExploreDetailScreen
+import com.ven.app.ui.screens.explore.ExploreScreen
+import com.ven.app.ui.screens.explore.SearchScreen
+=======
+import com.ven.app.ui.screens.explore.ExploreScreen
+import com.ven.app.ui.screens.explore.PostsFeedScreen
+import com.ven.app.ui.screens.explore.dummyPostsFeed
+>>>>>>> Stashed changes
 import com.ven.app.ui.screens.home.HomeScreen
 import com.ven.app.ui.screens.home.HomeUiState
 import com.ven.app.ui.screens.home.SampleHomeUiState
 import com.ven.app.ui.screens.onboarding.InterestScreen
+import com.ven.app.ui.screens.profile.ProfileScreen
+import com.ven.app.ui.screens.profile.dummyProfileUiState
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingEvent
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingScreen
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingViewModel
+import com.ven.app.ui.screens.schedule.ScheduleScreen
+import com.ven.app.ui.screens.settings.AccountStatusScreen
+import com.ven.app.ui.screens.settings.ChangeEmailScreen
+import com.ven.app.ui.screens.settings.ChangePasswordScreen
+import com.ven.app.ui.screens.settings.HistoryScreen
+import com.ven.app.ui.screens.settings.LanguageScreen
+import com.ven.app.ui.screens.settings.ProfileSettingsScreen
+import com.ven.app.ui.screens.settings.SettingsPlaceholderScreen
+import com.ven.app.ui.screens.settings.SettingsScreen
+import com.ven.app.ui.screens.settings.ThemeScreen
+import com.ven.app.ui.screens.settings.VerifyEmailScreen
+import com.ven.app.ui.screens.settings.dummyHistoryEntries
+import com.ven.app.ui.screens.settings.dummySettingsProfile
 import com.ven.app.ui.theme.VexTheme
 
 /**
@@ -40,8 +69,16 @@ import com.ven.app.ui.theme.VexTheme
  * Menghubungkan seluruh alur autentikasi, onboarding, dan destinasi utama.
  */
 @Composable
-fun AppNavHost() {
-    val startDestination = Screen.Login.route
+fun AppNavHost(showExplore: Boolean = false) {
+    val context = LocalContext.current
+    val themePreferences = remember { ThemePreferences.getInstance(context) }
+    val sessionManager = remember { SessionManager.getInstance(context) }
+    val currentTheme by themePreferences.themeMode.collectAsStateWithLifecycle()
+    var profileData by remember { mutableStateOf(dummySettingsProfile) }
+    var selectedLanguage by remember { mutableStateOf("English") }
+    var isAccountDisabled by remember { mutableStateOf(false) }
+
+    val startDestination = if (showExplore) Screen.Home.route else Screen.Login.route
     val navController = rememberNavController()
     val forgotViewModel: ForgotPasswordViewModel = viewModel()
     val forgotState by forgotViewModel.uiState.collectAsStateWithLifecycle()
@@ -180,9 +217,49 @@ fun AppNavHost() {
         // -------------------------------------------------------------
         composable(Screen.Home.route) {
             MainHomeScreen(
+                initialTab = if (showExplore) BottomNavTab.Explore else BottomNavTab.Home,
                 onRequestMeetingClick = { postId ->
                     navController.navigate(Screen.RequestMeeting.createRoute(postId))
                 },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                },
+<<<<<<< Updated upstream
+                onExploreSearchClick = {
+                    navController.navigate(Screen.ExploreSearch.route)
+                },
+                onExplorePostClick = { postId ->
+                    navController.navigate(Screen.ExplorePostDetail.createRoute(postId))
+                },
+=======
+                onNavigateToPostsFeed = { postId ->
+                    navController.navigate(Screen.PostsFeed.createRoute(postId))
+                },
+            )
+        }
+
+        // -------------------------------------------------------------
+        // 5b. SubPage: Explore Post Feed (scrollable)
+        // -------------------------------------------------------------
+        composable(
+            route = Screen.PostsFeed.route,
+            arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId").orEmpty()
+            PostsFeedScreen(
+                posts = dummyPostsFeed,
+                onBackClick = { navController.popBackStack() },
+                onRequestMeetingClick = { id ->
+                    navController.navigate(Screen.RequestMeeting.createRoute(id))
+                },
+                onView3dClick = { /* TODO: handle view 3D */ },
+                initialPostId = postId.ifBlank { null },
+>>>>>>> Stashed changes
             )
         }
 
@@ -216,15 +293,175 @@ fun AppNavHost() {
                 onSendRequestClick = requestViewModel::sendRequest,
             )
         }
+
+        // -------------------------------------------------------------
+        // 6b. SubPage: Explore Search (Recents + hasil) & Post Detail
+        // -------------------------------------------------------------
+        composable(Screen.ExploreSearch.route) {
+            SearchScreen(
+                onBackClick = { navController.popBackStack() },
+                onPostClick = { postId ->
+                    navController.navigate(Screen.ExplorePostDetail.createRoute(postId))
+                },
+            )
+        }
+
+        composable(
+            route = Screen.ExplorePostDetail.route,
+            arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId").orEmpty()
+            ExploreDetailScreen(
+                postId = postId,
+                onBackClick = { navController.popBackStack() },
+                onRequestMeetingClick = { id ->
+                    navController.navigate(Screen.RequestMeeting.createRoute(id))
+                },
+                onView3dClick = { /* TODO: handle view 3D */ },
+            )
+        }
+
+        // -------------------------------------------------------------
+        // 7. SubPage: Settings and Activity Flow
+        // -------------------------------------------------------------
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigateToProfile = { navController.navigate(Screen.SettingsProfile.route) },
+                onNavigateToChangeEmail = { navController.navigate(Screen.SettingsEmail.route) },
+                onNavigateToChangePassword = { navController.navigate(Screen.SettingsPassword.route) },
+                onNavigateToAccountStatus = { navController.navigate(Screen.SettingsAccountStatus.route) },
+                onNavigateToHistory = { navController.navigate(Screen.SettingsHistory.route) },
+                onNavigateToTheme = { navController.navigate(Screen.SettingsTheme.route) },
+                onNavigateToLanguage = { navController.navigate(Screen.SettingsLanguage.route) },
+                onNavigateToPrivacyPolicy = { navController.navigate(Screen.SettingsPrivacy.route) },
+                onNavigateToHelp = { navController.navigate(Screen.SettingsHelp.route) },
+                onLogoutConfirmed = {
+                    sessionManager.clearSession()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+            )
+        }
+
+        composable(Screen.SettingsProfile.route) {
+            ProfileSettingsScreen(
+                initialData = profileData,
+                onBackClick = { navController.popBackStack() },
+                onSaveProfile = { updated ->
+                    profileData = updated
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Screen.SettingsEmail.route) {
+            ChangeEmailScreen(
+                onBackClick = { navController.popBackStack() },
+                onSendOtpClick = { newEmail ->
+                    navController.navigate(Screen.SettingsVerifyEmail.createRoute(newEmail))
+                },
+            )
+        }
+
+        composable(
+            route = Screen.SettingsVerifyEmail.route,
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email").orEmpty()
+            VerifyEmailScreen(
+                email = email,
+                onBackClick = { navController.popBackStack() },
+                onVerifySuccess = {
+                    navController.popBackStack(Screen.Settings.route, inclusive = false)
+                },
+            )
+        }
+
+        composable(Screen.SettingsPassword.route) {
+            ChangePasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onSendOtpClick = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Screen.SettingsTheme.route) {
+            ThemeScreen(
+                currentTheme = currentTheme,
+                onThemeSelected = { newTheme ->
+                    themePreferences.setThemeMode(newTheme)
+                },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsLanguage.route) {
+            LanguageScreen(
+                currentLanguage = selectedLanguage,
+                onLanguageSelected = { selectedLanguage = it },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsAccountStatus.route) {
+            AccountStatusScreen(
+                isDisabledInitial = isAccountDisabled,
+                onStatusChange = { isAccountDisabled = it },
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsHistory.route) {
+            HistoryScreen(
+                entries = dummyHistoryEntries,
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsPrivacy.route) {
+            SettingsPlaceholderScreen(
+                title = "Privacy Policy",
+                onBackClick = { navController.popBackStack() },
+            )
+        }
+
+        composable(Screen.SettingsHelp.route) {
+            SettingsPlaceholderScreen(
+                title = "Help",
+                onBackClick = { navController.popBackStack() },
+            )
+        }
     }
 }
 
 @Composable
 fun MainHomeScreen(
     uiState: HomeUiState = SampleHomeUiState,
+    initialTab: BottomNavTab = BottomNavTab.Home,
     onRequestMeetingClick: (postId: String) -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
+<<<<<<< Updated upstream
+    onExploreSearchClick: () -> Unit = {},
+    onExplorePostClick: (postId: String) -> Unit = {},
+=======
+    onNavigateToPostsFeed: (postId: String) -> Unit = {},
+>>>>>>> Stashed changes
 ) {
-    var currentTab by remember { mutableStateOf(BottomNavTab.Home) }
+    var currentTab by remember { mutableStateOf(initialTab) }
+    var profileState by remember { mutableStateOf(dummyProfileUiState) }
 
     when (currentTab) {
         BottomNavTab.Home -> {
@@ -235,6 +472,35 @@ fun MainHomeScreen(
                 onRequestMeetingClick = onRequestMeetingClick,
                 onView3dClick = { /* TODO: handle view 3D */ },
                 onBannerClick = { /* TODO: handle banner click */ },
+            )
+        }
+        BottomNavTab.Schedule -> {
+            ScheduleScreen(
+                onTabSelected = { currentTab = it },
+            )
+        }
+        BottomNavTab.Explore -> {
+            ExploreScreen(
+                onTabSelected = { currentTab = it },
+                onMediaClick = { media -> onNavigateToPostsFeed(media.id) },
+            )
+        }
+        BottomNavTab.Profile -> {
+            ProfileScreen(
+                uiState = profileState,
+                onTabSelected = { currentTab = it },
+                onCreateClick = { /* TODO: handle create click */ },
+                onMenuClick = onNavigateToSettings,
+                onProfileTabChange = { profileState = profileState.copy(selectedTab = it) },
+                onSkillSheetToggle = { profileState = profileState.copy(isSkillSheetOpen = it) },
+                onMediaClick = { /* TODO: handle media click */ },
+            )
+        }
+        BottomNavTab.Explore -> {
+            ExploreScreen(
+                onTabSelected = { currentTab = it },
+                onSearchClick = onExploreSearchClick,
+                onMediaClick = { post -> onExplorePostClick(post.id) },
             )
         }
         else -> {

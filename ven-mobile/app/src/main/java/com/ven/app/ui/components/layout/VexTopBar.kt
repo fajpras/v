@@ -95,6 +95,7 @@ object VexTopBar {
         onBackClick: () -> Unit,
         modifier: Modifier = Modifier,
         showDivider: Boolean = true,
+        trailingContent: @Composable (() -> Unit)? = null,
     ) {
         val colors = VexTheme.colors
 
@@ -115,25 +116,106 @@ object VexTopBar {
                         .fillMaxWidth()
                         .padding(horizontal = VexSpace.s4),
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    IconButton(
-                        onClick = onBackClick,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f, fill = false),
                     ) {
-                        VexIcon(
-                            id = VexIcons.Back,
-                            contentDescription = "Back",
-                            size = VexSize.icon,
-                            tint = colors.text,
+                        IconButton(
+                            onClick = onBackClick,
+                        ) {
+                            VexIcon(
+                                id = VexIcons.Back,
+                                contentDescription = "Back",
+                                size = VexSize.icon,
+                                tint = colors.text,
+                            )
+                        }
+
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                            color = colors.text,
+                            modifier = Modifier.padding(start = VexSpace.s2),
                         )
                     }
 
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                        ),
-                        color = colors.text,
-                        modifier = Modifier.padding(start = VexSpace.s2),
+                    if (trailingContent != null) {
+                        trailingContent()
+                    }
+                }
+            }
+
+            if (showDivider) {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = colors.border,
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun Profile(
+        username: String,
+        onCreateClick: () -> Unit,
+        onMenuClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        showDivider: Boolean = false,
+    ) {
+        val colors = VexTheme.colors
+
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(colors.bg)
+                .statusBarsPadding(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(VexSize.topBar),
+            ) {
+                // Sisi Kiri: Ikon "+" (ic_action_add) -> Create Flow
+                IconButton(
+                    onClick = onCreateClick,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = VexSpace.s4),
+                ) {
+                    VexIcon(
+                        id = VexIcons.Add,
+                        contentDescription = stringResource(R.string.home_create_post),
+                        size = VexSize.icon,
+                        tint = colors.text,
+                    )
+                }
+
+                // Sisi Tengah: Username
+                Text(
+                    text = username,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                    color = colors.text,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+
+                // Sisi Kanan: Ikon Menu (ic_action_menu) -> Settings
+                IconButton(
+                    onClick = onMenuClick,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = VexSpace.s4),
+                ) {
+                    VexIcon(
+                        id = VexIcons.Menu,
+                        contentDescription = stringResource(R.string.profile_menu),
+                        size = VexSize.icon,
+                        tint = colors.text,
                     )
                 }
             }
@@ -151,6 +233,31 @@ object VexTopBar {
 // ---------------------------------------------------------
 // Previews
 // ---------------------------------------------------------
+
+@Preview(name = "Profile TopBar - Dark Mode", showBackground = true, backgroundColor = 0xFF1F1F1F)
+@Composable
+private fun ProfileTopBarDarkPreview() {
+    VexTheme(mode = ThemeMode.Dark) {
+        VexTopBar.Profile(
+            username = "gra._.aph",
+            onCreateClick = {},
+            onMenuClick = {},
+        )
+    }
+}
+
+@Preview(name = "Profile TopBar - Light Mode", showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Composable
+private fun ProfileTopBarLightPreview() {
+    VexTheme(mode = ThemeMode.Light) {
+        VexTopBar.Profile(
+            username = "gra._.aph",
+            onCreateClick = {},
+            onMenuClick = {},
+        )
+    }
+}
+
 
 @Preview(name = "Home TopBar - Dark Mode", showBackground = true, backgroundColor = 0xFF1F1F1F)
 @Composable

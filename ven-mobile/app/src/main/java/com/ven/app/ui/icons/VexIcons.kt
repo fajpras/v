@@ -36,12 +36,19 @@ object VexIcons {
     @DrawableRes val Add = R.drawable.ic_action_add
     @DrawableRes val Menu = R.drawable.ic_action_menu
     @DrawableRes val Back = R.drawable.ic_action_back
-    @DrawableRes val Close = 0            // TODO: R.drawable.ic_action_close
+    @DrawableRes val Edit = R.drawable.ic_action_edit
+    @DrawableRes val Check = R.drawable.ic_action_check
+    @DrawableRes val Close = R.drawable.ic_action_close
+    @DrawableRes val History = R.drawable.ic_action_history
     @DrawableRes val ChevronLeft = R.drawable.ic_action_chevron_left
     @DrawableRes val ChevronRight = R.drawable.ic_action_chevron_right
     @DrawableRes val ChevronDown = 0      // TODO: R.drawable.ic_action_chevron_down
     @DrawableRes val Search = R.drawable.ic_nav_explore_outline
-    @DrawableRes val Filter = 0           // TODO: R.drawable.ic_action_filter
+    @DrawableRes val Filter = R.drawable.ic_action_filter
+<<<<<<< Updated upstream
+=======
+    @DrawableRes val History = R.drawable.ic_action_history
+>>>>>>> Stashed changes
     @DrawableRes val ScheduleAction = R.drawable.ic_nav_schedule_outline
     @DrawableRes val Play = R.drawable.ic_action_play
     @DrawableRes val NewChat = R.drawable.ic_action_new_chat
