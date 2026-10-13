@@ -31,9 +31,15 @@ import com.ven.app.ui.screens.auth.LoginRoute
 import com.ven.app.ui.screens.auth.RegisterRoute
 import com.ven.app.ui.screens.auth.ResetPasswordScreen
 import com.ven.app.ui.screens.auth.VerifyOtpScreen
+<<<<<<< Updated upstream
 import com.ven.app.ui.screens.explore.ExploreDetailScreen
 import com.ven.app.ui.screens.explore.ExploreScreen
 import com.ven.app.ui.screens.explore.SearchScreen
+=======
+import com.ven.app.ui.screens.explore.ExploreScreen
+import com.ven.app.ui.screens.explore.PostsFeedScreen
+import com.ven.app.ui.screens.explore.dummyPostsFeed
+>>>>>>> Stashed changes
 import com.ven.app.ui.screens.home.HomeScreen
 import com.ven.app.ui.screens.home.HomeUiState
 import com.ven.app.ui.screens.home.SampleHomeUiState
@@ -43,6 +49,7 @@ import com.ven.app.ui.screens.profile.dummyProfileUiState
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingEvent
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingScreen
 import com.ven.app.ui.screens.requestmeeting.RequestMeetingViewModel
+import com.ven.app.ui.screens.schedule.ScheduleScreen
 import com.ven.app.ui.screens.settings.AccountStatusScreen
 import com.ven.app.ui.screens.settings.ChangeEmailScreen
 import com.ven.app.ui.screens.settings.ChangePasswordScreen
@@ -217,12 +224,42 @@ fun AppNavHost(showExplore: Boolean = false) {
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
                 },
+<<<<<<< Updated upstream
                 onExploreSearchClick = {
                     navController.navigate(Screen.ExploreSearch.route)
                 },
                 onExplorePostClick = { postId ->
                     navController.navigate(Screen.ExplorePostDetail.createRoute(postId))
                 },
+=======
+                onNavigateToPostsFeed = { postId ->
+                    navController.navigate(Screen.PostsFeed.createRoute(postId))
+                },
+            )
+        }
+
+        // -------------------------------------------------------------
+        // 5b. SubPage: Explore Post Feed (scrollable)
+        // -------------------------------------------------------------
+        composable(
+            route = Screen.PostsFeed.route,
+            arguments = listOf(
+                navArgument("postId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+        ) { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId").orEmpty()
+            PostsFeedScreen(
+                posts = dummyPostsFeed,
+                onBackClick = { navController.popBackStack() },
+                onRequestMeetingClick = { id ->
+                    navController.navigate(Screen.RequestMeeting.createRoute(id))
+                },
+                onView3dClick = { /* TODO: handle view 3D */ },
+                initialPostId = postId.ifBlank { null },
+>>>>>>> Stashed changes
             )
         }
 
@@ -416,8 +453,12 @@ fun MainHomeScreen(
     initialTab: BottomNavTab = BottomNavTab.Home,
     onRequestMeetingClick: (postId: String) -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+<<<<<<< Updated upstream
     onExploreSearchClick: () -> Unit = {},
     onExplorePostClick: (postId: String) -> Unit = {},
+=======
+    onNavigateToPostsFeed: (postId: String) -> Unit = {},
+>>>>>>> Stashed changes
 ) {
     var currentTab by remember { mutableStateOf(initialTab) }
     var profileState by remember { mutableStateOf(dummyProfileUiState) }
@@ -431,6 +472,17 @@ fun MainHomeScreen(
                 onRequestMeetingClick = onRequestMeetingClick,
                 onView3dClick = { /* TODO: handle view 3D */ },
                 onBannerClick = { /* TODO: handle banner click */ },
+            )
+        }
+        BottomNavTab.Schedule -> {
+            ScheduleScreen(
+                onTabSelected = { currentTab = it },
+            )
+        }
+        BottomNavTab.Explore -> {
+            ExploreScreen(
+                onTabSelected = { currentTab = it },
+                onMediaClick = { media -> onNavigateToPostsFeed(media.id) },
             )
         }
         BottomNavTab.Profile -> {

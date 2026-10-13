@@ -45,6 +45,10 @@ object VexIcons {
     @DrawableRes val ChevronDown = 0      // TODO: R.drawable.ic_action_chevron_down
     @DrawableRes val Search = R.drawable.ic_nav_explore_outline
     @DrawableRes val Filter = R.drawable.ic_action_filter
+<<<<<<< Updated upstream
+=======
+    @DrawableRes val History = R.drawable.ic_action_history
+>>>>>>> Stashed changes
     @DrawableRes val ScheduleAction = R.drawable.ic_nav_schedule_outline
     @DrawableRes val Play = R.drawable.ic_action_play
     @DrawableRes val NewChat = R.drawable.ic_action_new_chat

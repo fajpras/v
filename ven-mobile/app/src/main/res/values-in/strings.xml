@@ -139,4 +139,45 @@
     <string name="settings_logout_dialog_msg">Apakah Anda yakin ingin keluar dari akun Anda?</string>
     <string name="settings_logout_cancel">Batal</string>
     <string name="settings_logout_confirm">Keluar</string>
+
+    <!-- Schedule Strings -->
+    <string name="schedule_title">Jadwal</string>
+    <string name="schedule_search_placeholder">Cari</string>
+    <string name="schedule_tab_approved">Approved</string>
+    <string name="schedule_tab_waiting">Waiting</string>
+    <string name="schedule_tab_request">Request</string>
+    <string name="schedule_see_details">Lihat detail</string>
+    <string name="schedule_join_room">Join Room</string>
+    <string name="schedule_approve">Approve</string>
+    <string name="schedule_reject">Reject</string>
+    <string name="schedule_approved_detail_prefix">Permintaan Anda yang dijadwalkan pada </string>
+    <string name="schedule_approved_detail_suffix"> telah disetujui. Ruangan akan tersedia pada waktu tersebut, silakan hadiri pertemuan sesuai jadwal.</string>
+    <string name="schedule_waiting_detail_prefix">Permintaan Anda yang dijadwalkan pada </string>
+    <string name="schedule_waiting_detail_suffix"> telah dikirim dan sedang menunggu persetujuan. Harap tunggu dengan sabar.</string>
+    <string name="schedule_requested_for_prefix">Diminta untuk </string>
+    <string name="schedule_empty_approved">Tidak ada jadwal yang disetujui</string>
+    <string name="schedule_empty_waiting">Tidak ada permintaan menunggu</string>
+    <string name="schedule_empty_request">Tidak ada permintaan masuk</string>
+    <string name="schedule_action_approved_success">Permintaan disetujui</string>
+    <string name="schedule_action_rejected_success">Permintaan ditolak</string>
+    <string name="schedule_action_join_room_sim">Memasuki ruang pertemuan...</string>
+
+    <!-- Explore Strings -->
+    <string name="explore_search_placeholder">Cari</string>
+    <string name="explore_filter_action">Filter</string>
+    <string name="explore_back_action">Kembali</string>
+    <string name="explore_recents_title">Terbaru</string>
+    <string name="explore_remove_history">Hapus dari riwayat</string>
+    <string name="explore_tab_for_you">Untuk Anda</string>
+    <string name="explore_tab_accounts">Akun</string>
+    <string name="explore_tab_posts">Postingan</string>
+    <string name="explore_tab_exhibits">Pameran</string>
+    <string name="explore_section_accounts">Akun</string>
+    <string name="explore_section_posts">Postingan</string>
+    <string name="explore_filter_title">Kategori</string>
+    <string name="explore_filter_reset">Atur Ulang</string>
+    <string name="explore_empty_results">Tidak ada hasil untuk \"%1$s\"</string>
+    <string name="explore_empty_history">Belum ada riwayat pencarian</string>
+    <string name="explore_empty_discovery">Belum ada konten untuk dijelajahi</string>
+    <string name="explore_posts_title">Postingan</string>
 </resources>

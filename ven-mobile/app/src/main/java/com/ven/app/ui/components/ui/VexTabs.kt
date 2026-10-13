@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -100,11 +102,93 @@ fun <T> VexIconTabs(
     }
 }
 
+/**
+ * Tab switcher berbasis teks untuk VEN (Virtual Exhibition).
+ * Sesuai DESIGN.md §6.1 & §8.4.1:
+ * - Aktif: Teks warna [VexTheme.colors.text] (SemiBold) + garis bawah 1dp warna [VexTheme.colors.text].
+ * - Nonaktif: Teks warna [VexTheme.colors.textMuted] (Medium) + garis bawah [VexTheme.colors.border].
+ * - Lebar kolom seimbang (weight 1f).
+ */
+@Composable
+fun <T> VexTextTabs(
+    tabs: List<T>,
+    selectedTab: T,
+    onTabSelected: (T) -> Unit,
+    labelFor: @Composable (tab: T) -> String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = VexTheme.colors
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        tabs.forEach { tab ->
+            val isSelected = tab == selectedTab
+            val label = labelFor(tab)
+            val textColor = if (isSelected) colors.text else colors.textMuted
+            val underlineColor = if (isSelected) colors.text else colors.border
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(color = colors.text.copy(alpha = 0.15f)),
+                        role = Role.Tab,
+                        onClick = { onTabSelected(tab) },
+                    )
+                    .semantics {
+                        this.selected = isSelected
+                        this.role = Role.Tab
+                        this.contentDescription = label
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(VexSize.control),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = label,
+                        style = if (isSelected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
+                        color = textColor,
+                    )
+                }
+
+                // Garis indikator bawah selebar tab
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(underlineColor),
+                )
+            }
+        }
+    }
+}
+
 // ---------------------------------------------------------
 // Previews
 // ---------------------------------------------------------
 
 private enum class SampleProfileTab { Posts, Exhibits }
+private enum class SampleScheduleTab { Approved, Waiting, Request }
+
+@Preview(name = "VexTextTabs - Dark Mode", showBackground = true, backgroundColor = 0xFF1F1F1F)
+@Composable
+private fun VexTextTabsDarkPreview() {
+    VexTheme(mode = ThemeMode.Dark) {
+        VexTextTabs(
+            tabs = listOf(SampleScheduleTab.Approved, SampleScheduleTab.Waiting, SampleScheduleTab.Request),
+            selectedTab = SampleScheduleTab.Approved,
+            onTabSelected = {},
+            labelFor = { it.name },
+        )
+    }
+}
 
 @Preview(name = "VexIconTabs - Dark Mode", showBackground = true, backgroundColor = 0xFF1F1F1F)
 @Composable

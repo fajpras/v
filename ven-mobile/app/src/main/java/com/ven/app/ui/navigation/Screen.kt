@@ -22,6 +22,11 @@ sealed class Screen(val route: String) {
     data object Explore : Screen("explore")
     data object Profile : Screen("profile")
 
+    // Explore Sub-Page: Scrollable Post Feed
+    data object PostsFeed : Screen("posts_feed?postId={postId}") {
+        fun createRoute(postId: String = "") = "posts_feed?postId=$postId"
+    }
+
     // Create Content Flow
     data object CreatePost : Screen("create_post")
     data object CreateExhibit : Screen("create_exhibit")

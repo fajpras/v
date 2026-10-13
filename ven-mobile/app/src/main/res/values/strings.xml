@@ -140,6 +140,7 @@
     <string name="settings_logout_cancel">Cancel</string>
     <string name="settings_logout_confirm">Log Out</string>
 
+<<<<<<< Updated upstream
     <!-- Explore Strings -->
     <string name="explore_search_hint">Search</string>
     <string name="explore_filter_cd">Filter</string>
@@ -155,4 +156,46 @@
     <string name="search_tab_exhibits">Exhibits</string>
     <string name="explore_detail_posts">Posts</string>
     <string name="explore_detail_exhibits">Exhibits</string>
+=======
+    <!-- Schedule Strings -->
+    <string name="schedule_title">Schedule</string>
+    <string name="schedule_search_placeholder">Search</string>
+    <string name="schedule_tab_approved">Approved</string>
+    <string name="schedule_tab_waiting">Waiting</string>
+    <string name="schedule_tab_request">Request</string>
+    <string name="schedule_see_details">See details</string>
+    <string name="schedule_join_room">Join Room</string>
+    <string name="schedule_approve">Approve</string>
+    <string name="schedule_reject">Reject</string>
+    <string name="schedule_approved_detail_prefix">Your request which is scheduled in </string>
+    <string name="schedule_approved_detail_suffix"> has been approved. The room will be available on said time, please attend the meeting as scheduled.</string>
+    <string name="schedule_waiting_detail_prefix">Your request which is scheduled in </string>
+    <string name="schedule_waiting_detail_suffix"> has been sent and is waiting for approval. Please wait patiently.</string>
+    <string name="schedule_requested_for_prefix">Requested for </string>
+    <string name="schedule_empty_approved">No approved schedules</string>
+    <string name="schedule_empty_waiting">No pending requests</string>
+    <string name="schedule_empty_request">No incoming requests</string>
+    <string name="schedule_action_approved_success">Request approved</string>
+    <string name="schedule_action_rejected_success">Request rejected</string>
+    <string name="schedule_action_join_room_sim">Entering meeting room...</string>
+
+    <!-- Explore Strings -->
+    <string name="explore_search_placeholder">Search</string>
+    <string name="explore_filter_action">Filter</string>
+    <string name="explore_back_action">Back</string>
+    <string name="explore_recents_title">Recents</string>
+    <string name="explore_remove_history">Remove from history</string>
+    <string name="explore_tab_for_you">For you</string>
+    <string name="explore_tab_accounts">Accounts</string>
+    <string name="explore_tab_posts">Posts</string>
+    <string name="explore_tab_exhibits">Exhibits</string>
+    <string name="explore_section_accounts">Accounts</string>
+    <string name="explore_section_posts">Posts</string>
+    <string name="explore_filter_title">Category</string>
+    <string name="explore_filter_reset">Reset</string>
+    <string name="explore_empty_results">No results for \"%1$s\"</string>
+    <string name="explore_empty_history">No recent searches</string>
+    <string name="explore_empty_discovery">No content to explore yet</string>
+    <string name="explore_posts_title">Posts</string>
+>>>>>>> Stashed changes
 </resources>
