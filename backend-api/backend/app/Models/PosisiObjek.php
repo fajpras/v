@@ -13,8 +13,7 @@ class PosisiObjek extends Model
     protected $primaryKey = 'id_posisi';
 
     protected $fillable = [
-        'posisi_x', 'posisi_y', 'posisi_z',
-        'rotasi_x', 'rotasi_y', 'rotasi_z',
+        'posisi_x', 'posisi_y', 'posisi_z', 'rotasi_z',
     ];
 
     public function objek(): HasMany
