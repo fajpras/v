@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->string('google_id', 255)->nullable();
             $table->string('email', 254)->unique();
+            $table->string('nomor_hp', 20)->nullable()->unique();
             $table->string('foto_profil', 255)->nullable();
             $table->enum('role', ['admin', 'pengguna'])->default('pengguna');
             $table->enum('status', ['aktif', 'nonaktifkan', 'ditanggungkan'])->default('aktif');
