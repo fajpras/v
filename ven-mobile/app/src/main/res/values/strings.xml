@@ -140,23 +140,6 @@
     <string name="settings_logout_cancel">Cancel</string>
     <string name="settings_logout_confirm">Log Out</string>
 
-<<<<<<< Updated upstream
-    <!-- Explore Strings -->
-    <string name="explore_search_hint">Search</string>
-    <string name="explore_filter_cd">Filter</string>
-    <string name="explore_empty">No results found</string>
-    <string name="explore_category_title">Category</string>
-    <string name="explore_reset">Reset</string>
-    <string name="explore_back_cd">Back</string>
-    <string name="search_recents_title">Recents</string>
-    <string name="search_remove_cd">Remove</string>
-    <string name="search_tab_for_you">For you</string>
-    <string name="search_tab_accounts">Accounts</string>
-    <string name="search_tab_posts">Posts</string>
-    <string name="search_tab_exhibits">Exhibits</string>
-    <string name="explore_detail_posts">Posts</string>
-    <string name="explore_detail_exhibits">Exhibits</string>
-=======
     <!-- Schedule Strings -->
     <string name="schedule_title">Schedule</string>
     <string name="schedule_search_placeholder">Search</string>
@@ -197,5 +180,4 @@
     <string name="explore_empty_history">No recent searches</string>
     <string name="explore_empty_discovery">No content to explore yet</string>
     <string name="explore_posts_title">Posts</string>
->>>>>>> Stashed changes
 </resources>
