@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\LogAktifitas;
 use App\Models\LogKeamanan;
-use Illuminate\Support\Str;
 use Throwable;
 
 class LogSistem
@@ -14,14 +13,13 @@ class LogSistem
         return config('database.log_connection', 'mysql');
     }
 
-    public static function aktivitas(string $entitas, mixed $idEntitas, string $pesan, string $status = 'berhasil', ?string $idPengguna = null): void
+    public static function aktivitas(string $entitas, ?string $jenis, string $pesan, string $status = 'berhasil', ?string $idPengguna = null): void
     {
         try {
             LogAktifitas::on(self::koneksi())->create([
                 'id_pengguna' => $idPengguna ?? self::aktor(),
                 'entitas' => $entitas,
-
-                'id_entitas' => is_string($idEntitas) && Str::isUuid($idEntitas) ? $idEntitas : null,
+                'jenis' => in_array($jenis, LogAktifitas::JENIS, true) ? $jenis : null,
                 'status' => $status,
                 'pesan' => mb_substr($pesan, 0, 255),
                 'ip_address' => request()?->ip(),
