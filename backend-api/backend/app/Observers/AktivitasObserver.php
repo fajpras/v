@@ -37,12 +37,22 @@ class AktivitasObserver implements ShouldHandleEventsAfterCommit
     {
         $key = $m->getKey();
         $label = (string) $key;
+        $kolomProfil = ['nama', 'nama_panggilan', 'deskripsi', 'foto_profil', 'email'];
+        $jenis = match ($m->getTable()) {
+            'pameran' => 'pameran',
+            'karya' => 'karya',
+            'pengguna' => $aksi === 'mengubah'
+                && array_intersect($kolomProfil, array_keys($m->getChanges()))
+                    ? 'profil'
+                    : 'pengguna',
+            default => null,
+        };
 
         $pelaku = ($m instanceof Pengguna && $aksi === 'membuat') ? $key : null;
 
         LogSistem::aktivitas(
             entitas: $m->getTable(),
-            idEntitas: $key,
+            jenis: $jenis,
             pesan: "{$aksi} {$m->getTable()} #{$label}".($detail ? " ({$detail})" : ''),
             idPengguna: $pelaku,
         );
