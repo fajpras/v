@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import com.ven.app.data.api.SessionManager
 import com.ven.app.data.preference.ThemePreferences
 import com.ven.app.ui.components.layout.AppScaffold
+import com.ven.app.ui.screens.ai.AiChatScreen
 import com.ven.app.ui.screens.auth.ForgotPasswordEvent
 import com.ven.app.ui.screens.auth.ForgotPasswordScreen
 import com.ven.app.ui.screens.auth.ForgotPasswordViewModel
@@ -249,6 +250,23 @@ fun AppNavHost(showExplore: Boolean = false) {
         }
 
         // -------------------------------------------------------------
+        // 5c. Destination: AI Assistant
+        // -------------------------------------------------------------
+        composable(Screen.AiChat.route) {
+            AiChatScreen(
+                onTabSelected = { tab ->
+                    when (tab) {
+                        BottomNavTab.Home -> navController.navigate(Screen.Home.route)
+                        BottomNavTab.Schedule -> navController.navigate(Screen.Schedule.route)
+                        BottomNavTab.Explore -> navController.navigate(Screen.Explore.route)
+                        BottomNavTab.Profile -> navController.navigate(Screen.Profile.route)
+                        BottomNavTab.Ai -> { /* Already here */ }
+                    }
+                },
+            )
+        }
+
+        // -------------------------------------------------------------
         // 6. SubPage: Request Meeting
         // -------------------------------------------------------------
         composable(Screen.RequestMeeting.route) {
@@ -427,6 +445,11 @@ fun MainHomeScreen(
                 onTabSelected = { currentTab = it },
             )
         }
+        BottomNavTab.Ai -> {
+            AiChatScreen(
+                onTabSelected = { currentTab = it },
+            )
+        }
         BottomNavTab.Explore -> {
             ExploreScreen(
                 onTabSelected = { currentTab = it },
@@ -443,25 +466,6 @@ fun MainHomeScreen(
                 onSkillSheetToggle = { profileState = profileState.copy(isSkillSheetOpen = it) },
                 onMediaClick = { /* TODO: handle media click */ },
             )
-        }
-        else -> {
-            AppScaffold(
-                currentTab = currentTab,
-                onTabSelected = { currentTab = it },
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "${currentTab.title} Screen",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = VexTheme.colors.text,
-                    )
-                }
-            }
         }
     }
 }

@@ -180,4 +180,17 @@
     <string name="explore_empty_history">No recent searches</string>
     <string name="explore_empty_discovery">No content to explore yet</string>
     <string name="explore_posts_title">Posts</string>
+
+    <!-- AI Chat Strings (§8.12) -->
+    <string name="ai_chat_title">AI assistant</string>
+    <string name="ai_chat_placeholder">Type Something</string>
+    <string name="ai_chat_new_chat">New chat</string>
+    <string name="ai_chat_recents">Recents</string>
+    <string name="ai_chat_send_desc">Send message</string>
+    <string name="ai_chat_menu_desc">Open chat history</string>
+    <string name="ai_chat_empty_history">No previous chats</string>
+    <string name="ai_chat_error_network">Unable to reach AI assistant. Please try again.</string>
+    <string name="ai_chat_error_rate_limit">You have reached the maximum requests limit. Please wait a moment.</string>
+    <string name="ai_chat_retry">Retry</string>
+    <string name="ai_chat_sparkle_desc">AI Assistant Sparkle</string>
 </resources>
