@@ -1,6 +1,6 @@
 # design.md: VEN / VEX (Virtual Exhibition), Android (Kotlin + Jetpack Compose)
 
-> **Versi:** 0.4.9 (Update Explore: Wireframe Dark Mode §8.5, ExploreTopBar, CategoryFilterSheet, SearchHistoryItem, SearchAccountRow, ExhibitBannerCard, PostsFeedScreen, MediaGrid 2-kolom, MVI UI State & Local Dummy Data)
+> **Versi:** 0.5.0 (Update AI Assistant: Wireframe Dark Mode §8.12, AiChatScreen, AiChatEmptyState, ChatBubbleUser, ChatMessageAi, AiChatInput, ChatHistoryDrawer, ChatHistoryItem, MVI Architecture & Backend API Integration)
 > **Pembaca utama:** AI/developer yang mengimplementasikan UI.
 > **Penanda:**
 > - `[OBSERVED]` = diambil langsung dari wireframe/Figma.
@@ -555,7 +555,13 @@ object VexTheme {
 | **CategoryFilterSheet** | Explore (§8.5.4) `[BARU]` | Isi `VexBottomSheet`: header "Category" (kiri, 18sp SemiBold `text`) + aksi teks "Reset" (kanan, `primary`); body `FlowRow` 14 chip kategori (`VexChip` selectable). Unselected `surfaceInput`, selected `primary` teks putih |
 | **ProfileHeader / StatBlock** | Profile `[TERIMPLEMENTASI]` | Avatar 96dp, nama (maks 2 baris), statistik (angka tebal + label muted), baris chip skill clickable + sheet, bio, email, phone |
 
-| **ChatBubbleUser / ChatMessageAi** | AI | Lihat §8.12 |
+| **AiChatTopBar** | AI Assistant (§8.12.1) `[BARU]` | Header khusus AI: tombol drawer menu (`ic_action_menu`, 24dp) di kiri + logo VEX (`VexIcons.LogoVex`) di kanan, transparan tanpa divider bawah |
+| **AiChatEmptyState** | AI Assistant (§8.12.2) `[BARU]` | Tampilan layar awal: watermark sparkle besar bintang 4 sudut (putih transparan ±8%) di tengah-atas, kolom input pill di tengah layar vertikal, teks label "AI assistant" di bawah pill |
+| **ChatBubbleUser** | AI Assistant (§8.12.3) `[BARU]` | Balon pesan pengguna rata kanan, lebar maks 87% layar, fill `surfaceInput` (`#363636`), radius sudut 16dp kecuali sudut kanan-atas ~4dp (speech tail effect), tipografi `chatBody` (18sp Regular 400) |
+| **ChatMessageAi** | AI Assistant (§8.12.3) `[BARU]` | Respons pesan asisten AI tanpa wadah balon/kartu, teks langsung di atas kanvas latar (`#1F1F1F`), lebar penuh dengan padding horizontal 24dp, `TextAlign.Justify`, format daftar bernomor 1–10 interaktif |
+| **AiChatInput** | AI Assistant (§8.12.4) `[BARU]` | Kolom input pill tinggi 56–60dp, fill `surfaceInput` (`#363636`), placeholder "Type Something" (`textMuted`), tombol kirim panah muncul dinamis saat input terisi, adaptif keyboard via `imePadding()` |
+| **ChatHistoryDrawer** | AI Assistant (§8.12.5) `[BARU]` | Drawer modal navigasi dari sisi kiri selebar 300dp, latar `bg` (`#1F1F1F`), baris pemicu "New chat" (`ic_action_new_chat`), label seksi "Recents", daftar riwayat percakapan (`ChatHistoryItem`) |
+| **ChatHistoryItem** | AI Assistant Drawer (§8.12.5) `[BARU]` | Baris riwayat percakapan teks 1 baris dengan pemotongan ellipsis, tinggi sentuh minimal 48dp, warna putih (`text`), tap untuk membuka sesi percakapan lampau |
 
 ---
 
@@ -1240,17 +1246,176 @@ Ditampilkan saat pengguna mengetik/menjalankan kueri (contoh wireframe: `"vex"`)
     - Posisi: Slot bawah layar dengan `Modifier.navigationBarsPadding().imePadding()`, margin bawah ke tepi kanvas $\approx 25.5\text{ dp}$.
   - Alur Navigasi: Menekan "Send OTP" memvalidasi input email, memanggil endpoint `POST /password/forgot` pada backend Laravel, lalu menavigasi ke halaman verifikasi OTP (§8.9).
 
-### 8.12 AI Assistant `[OBSERVED]`
-- **Tab sparkle.** TopBar `Ai`: ikon menu (dua garis tak sama panjang) kiri → membuka `VexDrawer`; logo VEX kanan. Tidak ada garis bawah.
-- **State kosong:** sparkle besar (bintang 4 sudut, sangat samar: putih ±8% di dark) di tengah-atas; **kolom input pill di tengah layar**, di bawahnya teks "AI assistant" (`bodyLarge`, tengah). Saat pesan pertama dikirim, input pindah ke bawah (di atas bottom nav).
-- **State percakapan:**
-  - Pesan pengguna: bubble rata kanan, fill `surfaceInput`, radius 16dp **kecuali sudut kanan-atas ≈ 0–4dp** (efek ekor), lebar maks ≈ 87% layar, teks `chatBody`.
-  - Balasan AI: **tanpa bubble**, teks langsung di latar, lebar penuh dengan padding 24dp, `chatBody`. Wireframe memakai rata kiri-kanan (*justify*); `TextAlign.Justify` `[OBSERVED]`, boleh diganti Start bila terbaca buruk `[TODO]`. Mendukung daftar bernomor (markdown ringan).
-  - Daftar 10 karya di balasan: sebaiknya item bisa diketuk → detail karya / ruang 3D (teks di wireframe: "Kamu bisa memilih salah satu karya…") `[TODO bentuk: link teks atau kartu]`.
-  - Bahasa balasan mengikuti bahasa pengguna.
-- **Input:** pill tinggi ≈ 60dp (lebih tinggi dari input biasa), fill `surfaceInput`, placeholder "Type Something" (`textMuted`), margin horizontal ≈ 30dp, di atas bottom nav. Tombol kirim muncul saat ada teks `[ASSUMPTION]`; naik mengikuti keyboard (`imePadding`).
-- **Drawer riwayat:** lebar 300dp dari kiri, latar `bg`, scrim di sisa layar (logo VEX tetap terlihat di bawah scrim `[OBSERVED]`). Isi: baris **"New chat"** (ikon pena-pada-kotak + teks) → label "Recents" (muted) → daftar judul chat (1 baris, ellipsis). Judul chat bisa berbahasa apa saja. Tap = buka chat; tutup dengan swipe/tap scrim/Back. Aksi ganti nama/hapus (long-press) `[TODO]`.
-- State: streaming (teks muncul bertahap), loading (3 titik/skeleton), error + retry, empty riwayat, batas panjang input `[TODO]`.
+### 8.12 AI Assistant (Dark Mode) `[OBSERVED: 4 Wireframe AI Chat]`
+
+Spesifikasi lengkap layar **AI Assistant / AI Chat** divalidasi langsung dari 4 file wireframe dark mode resmi (`D:\front-mobile\dark-mode\ai\`):
+1. `Wireframe - AI Chat.png` (Empty State / Tampilan Awal)
+2. `Wireframe - AI Chat-1.png` (Conversation State / Percakapan Aktif)
+3. `Wireframe - AI Chat-2.png` (History Drawer / Laci Riwayat Percakapan)
+4. `Wireframe - AI Chat-3.png` (Input Active / Pengetikan & Transisi Drawer)
+
+Layar ini berjalan di bawah kerangka utama `AppScaffold` dengan tab bottom navigation ke-3 (`BottomNavTab.Ai`, ikon sparkle/bintang berkilau 4 sudut) aktif. Menggunakan arsitektur **MVI (Model-View-Intent)** reaktif dengan dukungan **Local Mockup Data** untuk preview offline serta terhubung langsung ke RESTful backend Laravel `POST /api/ai/tanya`.
+
+---
+
+#### 8.12.1 Anatomi Layar Utama & Header (`AiChatTopBar`)
+- **Kanvas & Insets:**
+  - Latar belakang: `#1F1F1F` (`VexTheme.colors.bg`).
+  - Bagian atas: `Modifier.statusBarsPadding()`.
+  - Bagian bawah: terikat `AppScaffold` dengan `BottomNav` tetap terlihat pada posisi default, beradaptasi saat keyboard terbuka via `imePadding()`.
+- **Top Bar (`AiChatTopBar`):**
+  - Tata letak: Baris horizontal (`Row`), tinggi 56dp, padding horizontal 20–24dp (`VexSpace.s5`), `Arrangement.SpaceBetween`, `Alignment.CenterVertically`.
+  - **Sisi Kiri:** Tombol menu navigasi drawer (`ic_action_menu` / dua garis horizontal tak sama panjang, garis atas sedikit lebih panjang), ukuran ikon 24×24dp, warna putih (`text`), area sentuh minimal 48×48dp (`VexSize.minTouchTarget`). Mengetuk ikon ini membuka laci riwayat (`ChatHistoryDrawer`).
+  - **Sisi Kanan:** Logo resmi VEX/VEN (`VexIcons.LogoVex`), tinggi 24dp, warna putih solid (`text`).
+  - **Border:** Bersih dan menyatu dengan latar kanvas — **tanpa garis pembatas/divider bawah** `[OBSERVED]`.
+
+---
+
+#### 8.12.2 State Kosong (Empty State) `[OBSERVED: Wireframe - AI Chat.png]`
+Kondisi saat sesi percakapan baru dibuka atau belum ada riwayat obrolan yang sedang aktif:
+- **Watermark Sparkle Tengah-Atas:**
+  - Ikon bintang berkilau 4 sudut berukuran besar (~140–160dp).
+  - Posisi: Rata tengah horizontal, vertikal di sepertiga atas layar (`y ≈ 25–35%` kanvas).
+  - Warna: Putih sangat redup dan samar dengan tingkat opasitas **±8%** (`Color.White.copy(alpha = 0.08f)`), memberikan aksen visual khas asisten AI tanpa mengalihkan perhatian dari input teks.
+- **Kolom Input Pill Tengah Layar:**
+  - Pada state kosong, kolom input utama (`AiChatInput`) **berada di tengah-tengah layar secara vertikal** (vertically centered), bukan melayang di dasar layar `[OBSERVED]`.
+  - Margin horizontal 28–30dp dari tepi layar.
+- **Label Identitas Layar:**
+  - Terletak tepat di bawah kolom input tengah dengan jarak vertikal ~16dp (`VexSpace.s4`).
+  - Teks: `"AI assistant"`.
+  - Tipografi: `bodyLarge` (18sp Regular 400), warna putih (`text`), rata tengah (`TextAlign.Center`).
+- **Transisi ke State Percakapan:**
+  - Saat pengguna mengirimkan pesan pertama kali, tata letak bertransisi secara halus (*animated layout transition*): kolom input berpindah ke slot bawah layar di atas BottomNav, dan kanvas utama berubah menjadi daftar percakapan scrollable.
+
+---
+
+#### 8.12.3 State Percakapan (Conversation State) `[OBSERVED: Wireframe - AI Chat-1.png]`
+Menampilkan percakapan bolak-balik antara pengguna dan asisten AI dalam wadah scrollable vertikal (`LazyColumn` dengan `rememberLazyListState()` yang otomatis auto-scroll ke pesan terbawah):
+
+- **Pesan Pengguna (`ChatBubbleUser`):**
+  - **Perataan:** Rata kanan (`Alignment.End`), margin kiri minimal 48dp (lebar maksimum balon $\approx 85 - 87\%$ dari lebar layar kanvas).
+  - **Bentuk & Sudut (Speech Tail Bubble):**
+    - `RoundedCornerShape`: Sudut kiri-atas 16dp, kiri-bawah 16dp, kanan-bawah 16dp, dan **sudut kanan-atas 2–4dp** (`VexRadius.xs` / hampir tajam) untuk menghasilkan efek ekor balon bicara arah keluar `[OBSERVED]`.
+  - **Warna Latar:** Abu-abu gelap solid `#363636` (`VexTheme.colors.surfaceInput`).
+  - **Padding Dalam:** Padding horizontal 18–20dp, padding vertikal 14–16dp.
+  - **Tipografi:** Token `chatBody` (18sp, Regular 400, line-height 1.4), warna putih solid `#FFFFFF` (`text`), perataan rata kiri (`TextAlign.Start`).
+  - **Contoh Teks Wireframe:** *"carikan saya 10 karya terkeren yang sesuai dengan kategori yang saya pilih"*.
+
+- **Balasan Asisten AI (`ChatMessageAi`):**
+  - **Desain Netral Tanpa Balon:** **Tidak menggunakan kartu, border, maupun background bubble** `[OBSERVED]`. Teks langsung dicetak di atas latar belakang kanvas `#1F1F1F`.
+  - **Tata Letak & Spasi:** Memenuhi lebar layar penuh dengan padding horizontal 24dp (`VexSpace.s6`) dan jarak vertikal antar blok pesan 20–24dp.
+  - **Tipografi:** Token `chatBody` (18sp, Regular 400, line-height 1.4), warna putih solid `#FFFFFF` (`text`).
+  - **Perataan Paragraf:** Rata kiri-kanan (*justified*, `TextAlign.Justify`) `[OBSERVED]`. Jika panjang baris pendek membuat jarak antarkata terlalu renggang, sistem menyediakan opsi graceful fallback ke `TextAlign.Start`.
+  - **Struktur Pesan Rekomendasi:**
+    1. **Paragraf Pembuka:** Sambutan dan konfirmasi pencarian (contoh: *"Tentu! Aku sudah menemukan 10 karya yang paling menarik untuk kamu jelajahi. Berikut beberapa karya pilihan yang bisa kamu lihat:"*).
+    2. **Daftar Karya Bernomor (1–10):** Format list markdown ringan bernomor rapi:
+       - `1. [Nama Karya 1]`
+       - `2. [Nama Karya 2]`
+       - ...
+       - `10. [Nama Karya 10]`
+       - Item nama karya bersifat interaktif (*clickable text/link*): mengetuk nama karya dapat memicu navigasi langsung ke detail karya (`PostsFeedScreen` §8.5.5) atau ruang pameran 3D terkait.
+    3. **Paragraf Penutup:** Teks arahan eksplorasi (contoh: *"Kamu bisa memilih salah satu karya untuk melihat detailnya atau langsung menjelajahi ruang 3D-nya."*).
+  - **Indikator Loading AI:** Saat menunggu respon kecerdasan buatan, ditampilkan animasi pulsasi 3 titik berkedip halus atau shimmer baris teks.
+
+---
+
+#### 8.12.4 Kolom Input Bawah (`AiChatInput`) `[OBSERVED: Wireframe - AI Chat-1.png & AI Chat-3.png]`
+- **Bentuk & Dimensi:**
+  - Bentuk: `Pill` sempurna (`RoundedCornerShape(VexRadius.full)` / 100dp).
+  - Tinggi: **56–60dp** (lebih tinggi dan ergonomis dibanding textfield biasa 48dp).
+  - Margin: Margin horizontal 24–30dp, margin bawah 12–16dp di atas BottomNav (atau keyboard saat fokus).
+- **Warna & Tampilan:**
+  - Latar: Abu-abu gelap `#363636` (`VexTheme.colors.surfaceInput`).
+  - Tanpa garis outline/border tebal saat idle; saat fokus outline opsional 1dp halus.
+  - Placeholder: `"Type Something"` menggunakan tipografi `bodyLarge` (16–18sp), warna abu-abu redup `#808080` (`textMuted`).
+  - Teks Ketikan: Warna putih solid `#FFFFFF` (`text`), single/multiline adaptif (maksimum 4 baris sebelum scroll internal aktif).
+- **Aksi Kirim Dinamis:**
+  - Pada sisi kanan dalam kolom input terdapat tombol kirim aksi (`IconButton` 36×36dp).
+  - **Logika Visibilitas:** Ikon kirim muncul secara dinamis (fade-in / scale-in) hanya saat `inputText.isNotBlank()`.
+  - Aset Ikon: Panah ke atas atau panah kirim sudut kanan-atas (20dp, warna putih atau `primaryText` `#D257FF`).
+- **Penanganan Keyboard:**
+  - Seluruh baris input dikaitkan dengan `Modifier.navigationBarsPadding().imePadding()`, memastikan input terangkat mulus persis di atas papan ketik virtual saat aktif mengetik `[OBSERVED: Wireframe - AI Chat-3.png]`.
+
+---
+
+#### 8.12.5 Drawer Riwayat Percakapan (`ChatHistoryDrawer`) `[OBSERVED: Wireframe - AI Chat-2.png]`
+Menyediakan akses cepat ke riwayat sesi percakapan terdahulu serta pemicu sesi baru:
+- **Geometri & Pembungkus:**
+  - Menggunakan komponen `ModalNavigationDrawer` / `VexDrawer`.
+  - Lebar laci: **300dp** dari tepi kiri layar (`VexSize.drawer`), tinggi layar penuh (`fillMaxHeight()`).
+  - Latar belakang: Warna latar gelap `#1F1F1F` (`VexTheme.colors.bg`).
+  - **Lapisan Scrim:** Sisa area layar di sebelah kanan (~112dp) dilapisi scrim gelap semi-transparan (`Color.Black.copy(alpha = 0.60f)`). Logo VEX pada TopBar dan foto avatar BottomNav tetap samar-samar terlihat di bawah lapisan scrim `[OBSERVED]`.
+- **Anatomi Konten Drawer:**
+  - **Aksi Sesi Baru ("New chat"):**
+    - Baris horizontal interaktif di bagian paling atas drawer.
+    - Ikon: Kotak dengan pena/pensil (`ic_action_new_chat` / `VexIcons.NewChat`, 24dp, warna putih `text`).
+    - Label Teks: `"New chat"`, tipografi `titleMedium` (17–18sp Medium 500), warna putih solid (`text`), margin kiri 16dp.
+    - Padding: Padding atas 48–56dp (`statusBarsPadding()`), padding horizontal 24dp, tinggi baris 48dp.
+    - Aksi Tap: Mengosongkan daftar pesan, mereset state ke Empty State (§8.12.2), dan menutup drawer.
+  - **Label Seksi ("Recents"):**
+    - Label judul seksi riwayat: `"Recents"`.
+    - Tipografi: `labelMedium` (14sp Regular 400), warna abu-abu redup `#808080` (`textMuted`).
+    - Margin: Jarak atas 24dp dari tombol "New chat", margin bawah 12dp, padding horizontal 24dp.
+  - **Daftar Riwayat Percakapan (`LazyColumn`):**
+    - Menampilkan riwayat sesi perbincangan pengguna secara vertikal.
+    - **Komponen Baris: `ChatHistoryItem`:**
+      - Tinggi baris minimal: 48dp (`VexSize.minTouchTarget`).
+      - Teks judul percakapan: gaya `bodyLarge` (16sp Regular 400), warna putih (`text`), single-line dengan pemotongan teks otomatis jika panjang (`maxLines = 1`, `overflow = TextOverflow.Ellipsis`).
+      - Contoh judul dari wireframe:
+        - *"Rekomendasi karya terkeren"*
+        - *"Pameran yang sesuai den..."*
+        - *"List karya milik Gra._.aph"*
+      - Interaksi Tap: Memuat kembali seluruh riwayat pesan dari sesi tersebut ke layar utama dan menutup drawer secara otomatis.
+- **Interaksi Penutupan Drawer:**
+  - Drawer dapat ditutup sewaktu-waktu dengan:
+    1. Melakukan swipe gesture ke arah kiri.
+    2. Mengetuk area scrim di sebelah kanan.
+    3. Menekan tombol Back sistem (gesture/tombol kembali fisik).
+
+---
+
+#### 8.12.6 Arsitektur MVI Frontend & Spesifikasi API Backend
+Halaman AI Assistant dibangun menggunakan pola **Model-View-Intent (MVI)** reaktif, mendukung transisi mulus antara mode offline mockup dummy dan mode online live API:
+
+- **Model Data Domain:**
+  - `ChatMessage`: `id: String`, `sender: ChatSender (User | Ai)`, `text: String`, `timestamp: Long`, `status: MessageStatus (Sent | Sending | Error)`.
+  - `ChatConversation`: `id: String`, `title: String`, `lastUpdated: Long`, `messages: List<ChatMessage>`.
+- **State UI Layar (`AiChatUiState`):**
+  - `screenState`: `AiScreenState (Empty | Conversation | Loading | Error)`.
+  - `messages`: Daftar `ChatMessage` pada sesi yang sedang aktif.
+  - `inputText`: String ketikan pada kolom input.
+  - `isAiTyping`: Boolean penanda asisten AI sedang merumuskan jawaban (menampilkan indikator respons).
+  - `chatHistory`: Daftar `ChatConversation` untuk disajikan pada Drawer Riwayat.
+  - `currentChatId`: ID percakapan aktif (null jika sesi baru belum disimpan).
+  - `isDrawerOpen`: Boolean penanda status keterbukaan drawer riwayat.
+  - `errorMessage`: String pesan kesalahan jaringan / rate limit.
+- **Dataset Mockup Mandiri (`AiChatDummyData.kt`):**
+  - Menyediakan 3 sesi percakapan awal sesuai wireframe (Rekomendasi karya terkeren, Pameran yang sesuai, List karya Graaph) lengkap dengan daftar 10 karya mock agar UI dapat diuji tuntas tanpa ketergantungan koneksi server.
+
+- **Kontrak Integrasi Backend Laravel RESTful API:**
+  - **Endpoint:** `POST /api/ai/tanya`
+  - **Middleware & Autentikasi:** `auth:sanctum`, `throttle:10,1` (maksimal 10 panggilan per menit per pengguna terautentikasi).
+  - **Request Body (JSON):**
+    ```json
+    {
+      "pertanyaan": "carikan saya 10 karya terkeren yang sesuai dengan kategori yang saya pilih"
+    }
+    ```
+    *Validasi backend:* Wajib diisi, tipe string, maksimal 1000 karakter (`required|string|max:1000`).
+  - **Response Berhasil (HTTP 200 OK):**
+    ```json
+    {
+      "sukses": true,
+      "pesan": "Berhasil",
+      "data": {
+        "jawaban": "Tentu! Aku sudah menemukan 10 karya yang paling menarik untuk kamu jelajahi. Berikut beberapa karya pilihan yang bisa kamu lihat: ..."
+      }
+    }
+    ```
+  - **Injeksi Konteks Otomatis oleh Backend:** Controller backend (`AIChatController.php`) secara otomatis mengekstrak 10 judul karya terbaru (`Karya::latest()`) dan 10 judul pameran terbaru (`Pameran::latest()`) untuk disisipkan sebagai system context prompt ke LLM eksternal.
+  - **Penanganan Kegagalan (Fallback):**
+    - Jika kuota tercapai atau server AI pihak ketiga mengalami kendala, backend mengembalikan pesan ramah: *"Maaf, layanan AI sedang tidak tersedia. Coba lagi nanti."*
+    - Frontend menangkap error dan menyajikan umpan balik yang jelas dengan tombol aksi *Retry*.
 
 ### 8.13 Create Post `[OBSERVED]` (CreateFlow, tanpa bottom nav)
 Dua langkah. Di langkah 1 ada **SegmentedPill "Post | Exhibit"** melayang di bawah tengah (lebar ≈ 245dp, tinggi ≈ 54dp, di atas inset bawah); mengganti ke "Exhibit" membuka §8.14.
@@ -1363,7 +1528,7 @@ Account status, History, Theme, Language, Privacy policy, Help, detail/tampilan 
 2. Peran warna `surface` (sheet, drawer, tombol melayang, toggle) di dark: sementara disamakan dengan `#252525`. Ada nilai berbeda di Figma?
 3. Bottom nav di light mode: warna dan ada/tidaknya garis atas.
 4. Tampilan chip Interest saat terpilih: apakah background ungu solid (`#BA18F5`) dengan teks putih atau variasi outline?
-5. Perilaku AI: tombol kirim, lampiran, item karya bisa diketuk, rename/hapus chat, batas panjang.
+5. Perilaku AI: lampiran gambar (tidak tampak pada wireframe v0.5.0; diasumsikan chat teks murni); batas panjang kueri teks 1000 karakter mengikuti batasan backend.
 6. Aturan validasi password, cooldown OTP, batas ukuran/rasio gambar unggahan.
 7. Perilaku scroll top bar Home/Explore; konten empty/error tiap halaman.
 8. Library final (Navigation, Coil, DataStore, dll.) dan `minSdk`.
@@ -1371,12 +1536,19 @@ Account status, History, Theme, Language, Privacy policy, Help, detail/tampilan 
 10. Standardisasi komponen `VexBottomActionBar` pada seluruh layar alur SubPage/CreateFlow lainnya (§8.9 Change Email, §8.10 Change Password, §8.11 Forgot Password, §8.13 Create Post, §8.14 Create Exhibit) agar pola CTA fixed seragam di seluruh aplikasi.
 
 **Sudah terselesaikan (dari daftar terbuka sebelumnya):**
+- ~~Perilaku AI (tombol kirim, transisi input tengah ke bawah, bubble ekor user, teks AI tanpa bubble, drawer riwayat 300dp)~~ → **Selesai v0.5.0**: lihat §8.12 (tervalidasi penuh dari 4 wireframe `D:\front-mobile\dark-mode\ai\`).
 - ~~Isi spesifik bottom sheet Filter Explore dan navigasi tile Explore~~ → **Selesai v0.4.9**: lihat §8.5.4 (`CategoryFilterSheet`) & §8.5.5 (`PostsFeedScreen`).
 - ~~Wireframe dark untuk halaman Explore untuk memvalidasi turunan token~~ → **Selesai v0.4.9**: divalidasi dari `D:\front-mobile\dark-mode\explore\` (§8.5).
 
 ---
 
 ## Changelog
+- **0.5.0**: Analisis Mendalam & Spesifikasi Lengkap **Halaman AI Assistant / AI Chat Dark Mode (§8.12)**:
+  - **Observasi 4 Wireframe**: Mengintegrasikan seluruh rancangan dari `D:\front-mobile\dark-mode\ai\` (`Wireframe - AI Chat.png` [Empty State], `Wireframe - AI Chat-1.png` [Conversation State], `Wireframe - AI Chat-2.png` [History Drawer], `Wireframe - AI Chat-3.png` [Input Active / Typing]).
+  - **Dua State Tampilan Utama**: Mengatur tata letak dinamis `Empty State` (watermark sparkle besar putih ±8% di tengah-atas, input pill vertikal di tengah, label "AI assistant") dan `Conversation State` (input pill berpindah ke bawah di atas BottomNav, kanvas berubah menjadi `LazyColumn` percakapan auto-scroll).
+  - **Spesifikasi Komponen Baru**: Mendaftarkan dan mendefinisikan komponen `AiChatTopBar`, `AiChatEmptyState`, `ChatBubbleUser` (speech tail bubble, radius 16dp kecuali kanan-atas ~4dp, lebar maks 87%), `ChatMessageAi` (tanpa bubble latar, teks langsung di background `#1F1F1F`, lebar penuh padding 24dp, `TextAlign.Justify`, daftar bernomor 1–10 interaktif), `AiChatInput` (pill 56–60dp, tombol kirim dinamis muncul saat ada teks, adaptif `imePadding`), `ChatHistoryDrawer` (modal drawer 300dp, aksi "New chat", label "Recents"), dan `ChatHistoryItem` (1 baris teks ellipsis).
+  - **Arsitektur MVI & Local Mockup**: Merancang `AiChatUiState` reaktif dan `AiChatDummyData.kt` untuk preview dan pengujian mandiri offline di sisi frontend.
+  - **Spesifikasi Kontrak Backend Laravel**: Menyinkronkan endpoint `POST /api/ai/tanya` (throttled 10 req/menit, validasi maks 1000 karakter, otomatis injeksi 10 karya & 10 pameran terbaru sebagai konteks) serta penanganan fallback error di UI.
 - **0.4.9**: Analisis Mendalam & Spesifikasi Lengkap **Halaman Explore Dark Mode (§8.5)**:
   - **Observasi 8 Wireframe**: Mengintegrasikan seluruh rancangan dari `D:\front-mobile\dark-mode\explore\` (`Wireframe - Explore.png`, `Explore history`, `Explore all`, `Explore posts`, `Explore exibhition`, `Explore account`, `Explore filter`, `Post`).
   - **State Layar Induk**: `ExploreScreen` mengelola 4 state lokal — Discovery, Search History, Search Results, dan Filter Sheet (§8.5.1–§8.5.4).
