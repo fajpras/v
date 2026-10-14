@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Pengguna extends Authenticatable
 {
-    use HasApiTokens, HasUuids, SoftDeletes;
+    use HasApiTokens, HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'pengguna';
     protected $primaryKey = 'id_pengguna';

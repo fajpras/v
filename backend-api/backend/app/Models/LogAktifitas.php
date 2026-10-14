@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogAktifitas extends Model
 {
-    public const JENIS = ['pameran', 'karya', 'profil', 'pengguna'];
+    public const JENIS = ['pameran', 'karya', 'pengguna'];
+    public const AKSI  = ['tambah', 'edit', 'hapus'];
 
     public $timestamps = false;
 
@@ -15,7 +16,7 @@ class LogAktifitas extends Model
     protected $primaryKey = 'id_log';
 
     protected $fillable = [
-        'id_pengguna', 'entitas', 'jenis', 'status', 'pesan', 'ip_address',
+        'id_pengguna', 'entitas', 'jenis', 'aksi', 'status', 'pesan', 'ip_address',
     ];
 
     protected function casts(): array

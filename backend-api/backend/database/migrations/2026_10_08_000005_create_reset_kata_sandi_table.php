@@ -14,7 +14,7 @@ return new class extends Migration
             $table->uuid('id_pengguna')->nullable()->index();
             $table->foreign('id_pengguna')->references('id_pengguna')->on('pengguna')->cascadeOnDelete();
             $table->string('otp_hash', 255);
-            $table->unsignedTinyInteger('percobaan')->default(0);
+            $table->unsignedTinyInteger( 'percobaan')->default(0);
             $table->timestamp('expired_at');
             $table->timestamp('used_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
