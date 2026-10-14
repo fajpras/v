@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LogAktifitas extends Model
 {
+    public const JENIS = ['pameran', 'karya', 'profil', 'pengguna'];
+
     public $timestamps = false;
 
     protected $table = 'log_aktifitas';
     protected $primaryKey = 'id_log';
 
     protected $fillable = [
-        'id_pengguna', 'entitas', 'id_entitas', 'status', 'pesan', 'ip_address',
+        'id_pengguna', 'entitas', 'jenis', 'status', 'pesan', 'ip_address',
     ];
 
     protected function casts(): array
